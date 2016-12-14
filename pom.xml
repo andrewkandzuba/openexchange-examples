@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>openexchange-examples</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>openexchange ::: ${project.artifactId}</name>
@@ -18,7 +18,7 @@
         <developerConnection>
             scm:git:[fetch=]https://github.com/andrewkandzuba/${project.artifactId}.git[push=]git@github.com:andrewkandzuba/${project.artifactId}.git
         </developerConnection>
-        <tag>openexchange-examples-1.0.1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <modules>
