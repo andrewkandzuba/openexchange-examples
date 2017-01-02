@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.openexchange</groupId>
+        <groupId>io.openexchange</groupId>
         <artifactId>openexchange-boot-starter-parent</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.3</version>
     </parent>
 
     <artifactId>openexchange-examples</artifactId>
@@ -23,6 +23,7 @@
 
     <modules>
         <module>refreshscopeclient</module>
+        <module>kafka-producer</module>
     </modules>
 
 </project>
