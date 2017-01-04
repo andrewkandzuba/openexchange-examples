@@ -4,7 +4,3 @@ zuul:
       path: /kafka-producer/**
       serviceId: kafka-producer
       stripPrefix: false
-
-kafka-producer:
-  ribbon:
-    ReadTimeout: 60000

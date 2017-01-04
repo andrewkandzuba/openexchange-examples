@@ -23,4 +23,5 @@ atlassian-ide-plugin.xml
 **.iws
 **.ipr
 **/*-db.properties
-.DS_Store 
+.DS_Store
+.env*

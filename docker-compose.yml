@@ -1,14 +1,15 @@
 version: '2'
 services:
-  kafka-producer2:
+  kafka-producer1:
     image: openexchange/kafka-producer:latest
     network_mode: "host"
     ports:
-      - "8102:8102"
+      - "8101:8101"
       - "9011:9011"
     environment:
       JAVA_OPTS: |
-        -Dserver.port=8102
+        ${JAVA_OPTS}
+        -Dserver.port=8101
         -server
         -ea
         -Xms64m
@@ -26,51 +27,17 @@ services:
         -Dcom.sun.management.jmxremote.authenticate=false
         -Dcom.sun.management.jmxremote.ssl=false
         -Dcom.sun.management.jmxremote.rmi.port=9011
-        -Dspring.rabbitmq.host=${DOCKER_SYSTEM_HOST_IP}
-        -Deureka.client.serviceUrl.defaultZone=http://${DOCKER_SYSTEM_HOST_IP}:8761/eureka/
-        -Djava.rmi.server.hostname=${DOCKER_LOCAL_HOST_IP}
-        -Deureka.instance.hostname=${DOCKER_LOCAL_HOST_IP}
     restart: always
-  kafka-producer1:
+  kafka-producer2:
     image: openexchange/kafka-producer:latest
     network_mode: "host"
     ports:
-      - "8100:8100"
-      - "9010:9010"
-    environment:
-      JAVA_OPTS: |
-        -Dserver.port=8100
-        -server
-        -ea
-        -Xms64m
-        -Xmx128m
-        -XX:MaxMetaspaceSize=64m
-        -Xmn16m -XX:SurvivorRatio=8
-        -XX:TargetSurvivorRatio=50
-        -XX:+UseConcMarkSweepGC
-        -XX:+CMSParallelRemarkEnabled
-        -verbose:gc
-        -XX:+PrintGCDetails
-        -Dcom.sun.management.jmxremote
-        -Dcom.sun.management.jmxremote.port=9010
-        -Dcom.sun.management.jmxremote.local.only=false
-        -Dcom.sun.management.jmxremote.authenticate=false
-        -Dcom.sun.management.jmxremote.ssl=false
-        -Dcom.sun.management.jmxremote.rmi.port=9010
-        -Dspring.rabbitmq.host=${DOCKER_SYSTEM_HOST_IP}
-        -Deureka.client.serviceUrl.defaultZone=http://${DOCKER_SYSTEM_HOST_IP}:8761/eureka/
-        -Djava.rmi.server.hostname=${DOCKER_LOCAL_HOST_IP}
-        -Deureka.instance.hostname=${DOCKER_LOCAL_HOST_IP}
-    restart: always
-  kafka-producer3:
-    image: openexchange/kafka-producer:latest
-    network_mode: "host"
-    ports:
-      - "8103:8103"
+      - "8102:8102"
       - "9012:9012"
     environment:
       JAVA_OPTS: |
-        -Dserver.port=8103
+        ${JAVA_OPTS}
+        -Dserver.port=8102
         -server
         -ea
         -Xms64m
@@ -88,20 +55,17 @@ services:
         -Dcom.sun.management.jmxremote.authenticate=false
         -Dcom.sun.management.jmxremote.ssl=false
         -Dcom.sun.management.jmxremote.rmi.port=9012
-        -Dspring.rabbitmq.host=${DOCKER_SYSTEM_HOST_IP}
-        -Deureka.client.serviceUrl.defaultZone=http://${DOCKER_SYSTEM_HOST_IP}:8761/eureka/
-        -Djava.rmi.server.hostname=${DOCKER_LOCAL_HOST_IP}
-        -Deureka.instance.hostname=${DOCKER_LOCAL_HOST_IP}
     restart: always
-  kafka-producer4:
+  kafka-producer3:
     image: openexchange/kafka-producer:latest
     network_mode: "host"
     ports:
-      - "8104:8104"
+      - "8103:8103"
       - "9013:9013"
     environment:
       JAVA_OPTS: |
-        -Dserver.port=8104
+        ${JAVA_OPTS}
+        -Dserver.port=8103
         -server
         -ea
         -Xms64m
@@ -119,8 +83,32 @@ services:
         -Dcom.sun.management.jmxremote.authenticate=false
         -Dcom.sun.management.jmxremote.ssl=false
         -Dcom.sun.management.jmxremote.rmi.port=9013
-        -Dspring.rabbitmq.host=${DOCKER_SYSTEM_HOST_IP}
-        -Deureka.client.serviceUrl.defaultZone=http://${DOCKER_SYSTEM_HOST_IP}:8761/eureka/
-        -Djava.rmi.server.hostname=${DOCKER_LOCAL_HOST_IP}
-        -Deureka.instance.hostname=${DOCKER_LOCAL_HOST_IP}
+    restart: always
+  kafka-producer4:
+    image: openexchange/kafka-producer:latest
+    network_mode: "host"
+    ports:
+      - "8104:8104"
+      - "9014:9014"
+    environment:
+      JAVA_OPTS: |
+        ${JAVA_OPTS}
+        -Dserver.port=8104
+        -server
+        -ea
+        -Xms64m
+        -Xmx128m
+        -XX:MaxMetaspaceSize=64m
+        -Xmn16m -XX:SurvivorRatio=8
+        -XX:TargetSurvivorRatio=50
+        -XX:+UseConcMarkSweepGC
+        -XX:+CMSParallelRemarkEnabled
+        -verbose:gc
+        -XX:+PrintGCDetails
+        -Dcom.sun.management.jmxremote
+        -Dcom.sun.management.jmxremote.port=9014
+        -Dcom.sun.management.jmxremote.local.only=false
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.ssl=false
+        -Dcom.sun.management.jmxremote.rmi.port=9014
     restart: always

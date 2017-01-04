@@ -35,7 +35,7 @@ public class HelloWorldController {
 
     @RequestMapping("/allocate")
     public String allocate() {
-        byte[] bytes = new byte[1024];
+        byte[] bytes = new byte[4096];
         randomize.nextBytes(bytes);
         return new String(bytes);
     }
