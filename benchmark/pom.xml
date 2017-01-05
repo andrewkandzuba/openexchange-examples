@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.openexchange</groupId>
+        <artifactId>openexchange-examples</artifactId>
+        <version>1.0.2-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>benchmark</artifactId>
+    <name>openexchange ::: ${project.artifactId}</name>
+    <version>1.0.2-SNAPSHOT</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <!-- version>4.5.2</version -->
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <filtering>true</filtering>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/bootstrap.yml</include>
+                    <include>**/logback.xml</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <!-- plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${fabric8.docker-maven-plugin.version}</version>
+                <configuration>
+                    <verbose>true</verbose>
+                    <images>
+                        <image>
+                            <alias>${project.artifactId}</alias>
+                            <name>%g/${project.artifactId}:${project.version}</name>
+                            <build>
+                                <tags>
+                                    <tag>latest</tag>
+                                    <tag>${project.version}</tag>
+                                </tags>
+                                <from>openjdk:8</from>
+                                <assembly>
+                                    <mode>tgz</mode>
+                                    <permissions>ignore</permissions>
+                                    <inline>
+                                        <dependencySets>
+                                            <dependencySet>
+                                                <includes>
+                                                    <include>${project.groupId}:${project.artifactId}:jar:${project.version}
+                                                    </include>
+                                                </includes>
+                                                <outputFileNameMapping>${project.artifactId}.jar</outputFileNameMapping>
+                                            </dependencySet>
+                                        </dependencySets>
+                                    </inline>
+                                </assembly>
+                                <entryPoint>
+                                    <shell>java $JAVA_OPTS -Djava.security.egd=file:/dev/urandom -jar /maven/${project.artifactId}.jar</shell>
+                                </entryPoint>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>docker</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin -->
+        </plugins>
+    </build>
+</project>
