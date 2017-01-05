@@ -105,42 +105,49 @@ public class HttpLoadRunner {
 
         @Override
         public void run() {
-            try (CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(cm).disableRedirectHandling().build()) {
-                while (!Thread.currentThread().isInterrupted() && delay > 0) {
-                    long waitBeforeNext = ThreadLocalRandom.current().nextLong(delay);
-                    Thread.sleep(waitBeforeNext);
+            while (!Thread.currentThread().isInterrupted()) {
 
-                    Collections.shuffle(urisToGet);
-                    for (String uriToGet : urisToGet) {
+                try (CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(cm).disableRedirectHandling().build()) {
 
-                        logger.debug("HTTP GET: " + uriToGet);
+                    logger.info("New HTTP client have been created");
 
-                        HttpContext context = HttpClientContext.create();
-                        HttpGet httpget = new HttpGet(uriToGet);
-                        long startRequest = System.currentTimeMillis();
+                    while (!Thread.currentThread().isInterrupted()) {
+                        long waitBeforeNext = ThreadLocalRandom.current().nextLong(delay);
+                        Thread.sleep(waitBeforeNext);
 
-                        try (CloseableHttpResponse response = httpClient.execute(httpget, context)) {
-                            int statusCode = response.getStatusLine().getStatusCode();
+                        Collections.shuffle(urisToGet);
+                        for (String uriToGet : urisToGet) {
 
-                            if (statusCode == 200) {
-                                HttpEntity entity = response.getEntity();
-                                logger.debug(EntityUtils.toString(entity));
-                                requestStatisticLogger.log(uriToGet, System.currentTimeMillis() - startRequest, waitBeforeNext, true);
-                                logger.debug("HTTP GET Response code: " + statusCode + " for: " + uriToGet);
-                                break;
+                            logger.debug("HTTP GET: " + uriToGet);
+
+                            HttpContext context = HttpClientContext.create();
+                            HttpGet httpget = new HttpGet(uriToGet);
+                            long startRequest = System.currentTimeMillis();
+
+                            try (CloseableHttpResponse response = httpClient.execute(httpget, context)) {
+                                int statusCode = response.getStatusLine().getStatusCode();
+
+                                if (statusCode == 200) {
+                                    HttpEntity entity = response.getEntity();
+                                    logger.debug(EntityUtils.toString(entity));
+                                    requestStatisticLogger.log(uriToGet, System.currentTimeMillis() - startRequest, waitBeforeNext, true);
+                                    logger.debug("HTTP GET Response code: " + statusCode + " for: " + uriToGet);
+                                    break;
+                                }
+                                requestStatisticLogger.log(uriToGet, System.currentTimeMillis() - startRequest, waitBeforeNext, false);
+
+                            } catch (IOException e) {
+                                logger.debug(e.getMessage(), e);
+                                requestStatisticLogger.log(uriToGet, System.currentTimeMillis() - startRequest, waitBeforeNext, false);
                             }
-                            requestStatisticLogger.log(uriToGet, System.currentTimeMillis() - startRequest, waitBeforeNext, false);
-
-                        } catch (IOException e) {
-                            logger.debug(e.getMessage(), e);
-                            requestStatisticLogger.log(uriToGet, System.currentTimeMillis() - startRequest, waitBeforeNext, false);
                         }
                     }
+
+                } catch (IOException e) {
+                    logger.error(e.getMessage(), e);
+                } catch (InterruptedException e) {
+                    // Just exist
                 }
-            } catch (IOException e) {
-                logger.error(e.getMessage(), e);
-            } catch (InterruptedException e) {
-                // Just exist
             }
         }
     }
