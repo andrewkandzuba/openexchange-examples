@@ -25,6 +25,8 @@ import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static io.openexchange.utils.ExecutorsUtil.shutdownExecutorService;
 
@@ -34,19 +36,19 @@ public class HttpLoadRunner {
 
     private final HttpLoadRunnerConfiguration config;
     private final StatisticsTrackingService statistics;
-
+    private final ScheduledExecutorService roundsScheduledExecutorService;
     private final ExecutorService requestExecutorService;
     private final CloseableHttpClient httpClient;
 
     @Autowired
     public HttpLoadRunner(HttpLoadRunnerConfiguration config, PoolingHttpClientConnectionManager cm, StatisticsTrackingService statistics) {
         this.config = config;
+        this.roundsScheduledExecutorService = Executors.newScheduledThreadPool(1);
         this.requestExecutorService = Executors.newWorkStealingPool();
         this.httpClient = HttpClients.custom()
                 .setConnectionManager(cm)
                 .disableRedirectHandling()
                 .setKeepAliveStrategy((response, context) -> {
-                    // Honor 'keep-alive' header
                     HeaderElementIterator it = new BasicHeaderElementIterator(
                             response.headerIterator(HTTP.CONN_KEEP_ALIVE));
                     while (it.hasNext()) {
@@ -68,7 +70,7 @@ public class HttpLoadRunner {
     @PostConstruct
     private void init() {
         logger.info("Starting load runner...");
-        runRound();
+        roundsScheduledExecutorService.schedule(() -> runRound(config.getRounds()), 0, TimeUnit.MILLISECONDS);
         logger.info("Load runner has been started");
     }
 
@@ -76,6 +78,7 @@ public class HttpLoadRunner {
     private void destroy() {
         logger.info("Stopping load runner...");
         shutdownExecutorService(requestExecutorService);
+        shutdownExecutorService(roundsScheduledExecutorService);
         try {
             httpClient.close();
         } catch (IOException e) {
@@ -84,10 +87,12 @@ public class HttpLoadRunner {
         logger.info("Load runner has been stopped");
     }
 
-    private void runRound(){
-        for (String host : config.getHosts()) {
+    private void runRound(int rounds) {
+        for (int r = 0; r < rounds; r++) {
             for (int c = 0; c < config.getConcurrency(); c++) {
-                requestExecutorService.execute(new GetUriThread(httpClient, new HttpGet(host)));
+                for (String host : config.getHosts()) {
+                    requestExecutorService.submit(new GetUriThread(httpClient, new HttpGet(host)));
+                }
             }
         }
     }
