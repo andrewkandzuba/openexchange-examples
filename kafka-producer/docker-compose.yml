@@ -10,6 +10,7 @@ services:
       JAVA_OPTS: |
         ${JAVA_OPTS}
         -Dserver.port=8101
+        -Dserver.tomcat.max-threads=200
         -server
         -ea
         -Xms64m
@@ -39,6 +40,7 @@ services:
       JAVA_OPTS: |
         ${JAVA_OPTS}
         -Dserver.port=8102
+        -Dserver.tomcat.max-threads=200
         -server
         -ea
         -Xms64m
@@ -68,6 +70,7 @@ services:
       JAVA_OPTS: |
         ${JAVA_OPTS}
         -Dserver.port=8103
+        -Dserver.tomcat.max-threads=200
         -server
         -ea
         -Xms64m
@@ -96,9 +99,10 @@ services:
     environment:
       JAVA_OPTS: |
         ${JAVA_OPTS}
-        -Dserver.port=8104
         -server
         -ea
+        -Dserver.port=8104
+        -Dserver.tomcat.max-threads=200
         -Xms64m
         -Xmx128m
         -XX:MaxMetaspaceSize=64m

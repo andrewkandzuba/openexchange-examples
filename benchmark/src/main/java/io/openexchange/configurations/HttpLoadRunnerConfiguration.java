@@ -8,28 +8,28 @@ public class HttpLoadRunnerConfiguration {
     @Value("${openexchange.loadrunner.hosts}")
     private String hosts;
 
-    @Value("${openexchange.loadrunner.threads.number}")
-    private int threadsNumber;
-
-    @Value("${openexchange.loadrunner.threads.rate}")
-    private long rate;
-
-    @Value("${openexchange.loadrunner.statistic.print.rate}")
+    @Value("${openexchange.loadrunner.statistic.print.rate:5000}")
     private long printRate;
 
-    public String getHosts() {
-        return hosts;
-    }
+    @Value("${openexchange.loadrunner.concurrency:1}")
+    private int concurrency;
 
-    public int getThreadsNumber() {
-        return threadsNumber;
-    }
+    @Value("${openexchange.loadrunner.rounds:1}")
+    private int rounds;
 
-    public long getRate() {
-        return rate;
+    public String[] getHosts() {
+        return hosts.split(",");
     }
 
     public long getPrintRate() {
         return printRate;
+    }
+
+    public int getConcurrency() {
+        return concurrency;
+    }
+
+    public int getRounds() {
+        return rounds;
     }
 }
