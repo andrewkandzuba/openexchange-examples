@@ -95,7 +95,7 @@ public class HttpLoadRunner {
     private void init() {
         logger.info("Starting load runner...");
         for (String host : config.getUris())
-            hostsExecutorService.submit(() -> runRound(host, config.getRounds()));
+            hostsExecutorService.submit(() -> runRound(host, config.getRounds(), config.getConcurrency()));
         logger.info("Load runner has been started");
     }
 
@@ -111,9 +111,9 @@ public class HttpLoadRunner {
         logger.info("Load runner has been stopped");
     }
 
-    private void runRound(String host, int rounds) {
+    private void runRound(String host, int rounds, int concurrency) {
         for (int r = 0; r < rounds; r++) {
-            Thread[] threads = new Thread[config.getConcurrency()];
+            Thread[] threads = new Thread[concurrency];
             for (int c = 0; c < threads.length; c++) {
                 threads[c] = new GetThread(new HttpGet(host));
             }
