@@ -34,7 +34,7 @@ public class Server {
         return "[" + "host:port=" + hostAndPort.getHostName() + ":" + hostAndPort.getPort() + ", " +
                 "total=" + total + ", " +
                 "failures=" + failures + ", " +
-                "avgTime=" + totalTime.divide(BigDecimal.valueOf(total), BigDecimal.ROUND_HALF_UP) + "mls." +
+                "avgTime=" + ((total > 0) ? totalTime.divide(BigDecimal.valueOf(total), BigDecimal.ROUND_HALF_UP) : 0.0) + " mls." +
                 "]";
     }
 }

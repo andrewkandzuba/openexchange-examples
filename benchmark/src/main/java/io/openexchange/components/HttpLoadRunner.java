@@ -131,17 +131,19 @@ public class HttpLoadRunner {
     }
 
     private void query(final HttpGet httpget, final HttpContext httpContext) {
+        long time = 0;
         boolean success = false;
         try (CloseableHttpResponse response = httpClient.execute(httpget, httpContext)) {
             if (response.getStatusLine().getStatusCode() == 200) {
                 EntityUtils.consume(response.getEntity());
+                time = (Long) httpContext.getAttribute("openexchange.http.request.total.time");
                 success = true;
+
             }
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
-        statistics.log(InetSocketAddress.createUnresolved(httpget.getURI().getHost(), httpget.getURI().getPort()),
-                new Request(success, (Long) httpContext.getAttribute("openexchange.http.request.total.time")));
+        statistics.log(InetSocketAddress.createUnresolved(httpget.getURI().getHost(), httpget.getURI().getPort()), new Request(success, time));
     }
 
     private class GetThread extends Thread {
