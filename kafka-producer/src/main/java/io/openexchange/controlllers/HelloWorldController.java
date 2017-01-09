@@ -1,4 +1,4 @@
-package io.openexchange;
+package io.openexchange.controlllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +13,13 @@ import java.util.Random;
 @RestController
 public class HelloWorldController {
     private static final Logger logger = LoggerFactory.getLogger(HelloWorldController.class);
-    @Autowired
-    private Environment environment;
     private final static Random randomize = new Random();
+    private final Environment environment;
+
+    @Autowired
+    public HelloWorldController(Environment environment) {
+        this.environment = environment;
+    }
 
     @RequestMapping("/hello")
     public String hello() {

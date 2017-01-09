@@ -25,6 +25,8 @@
         <module>refreshscopeclient</module>
         <module>kafka-producer</module>
         <module>benchmark</module>
+        <module>metrics</module>
+        <module>utils</module>
     </modules>
 
 </project>

@@ -21,7 +21,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-actuator</artifactId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
     </dependencies>
 
@@ -81,7 +81,9 @@
                                     </inline>
                                 </assembly>
                                 <entryPoint>
-                                    <shell>java $JAVA_OPTS -Djava.security.egd=file:/dev/urandom -jar /maven/kafka-producer.jar</shell>
+                                    <shell>java $JAVA_OPTS -Djava.security.egd=file:/dev/urandom -jar \
+                                        /maven/kafka-producer.jar
+                                    </shell>
                                 </entryPoint>
                             </build>
                         </image>

@@ -1,6 +1,6 @@
 package io.openexchange.statistics;
 
-import io.openexchange.configurations.HttpLoadRunnerConfiguration;
+import io.openexchange.statistics.configurations.MetricsConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,14 +15,14 @@ import java.util.concurrent.TimeUnit;
 import static io.openexchange.utils.ExecutorsUtil.shutdownExecutorService;
 
 @Component
-public class StatisticsReportingService {
-    private static final Logger logger = LoggerFactory.getLogger(StatisticsReportingService.class);
-    private final StatisticsTrackingService statistics;
-    private final HttpLoadRunnerConfiguration config;
+public class Reporting {
+    private static final Logger logger = LoggerFactory.getLogger(Reporting.class);
+    private final Tracking statistics;
+    private final MetricsConfiguration config;
     private final ScheduledExecutorService printStatisticsService;
 
     @Autowired
-    public StatisticsReportingService(StatisticsTrackingService statistics, HttpLoadRunnerConfiguration config) {
+    public Reporting(Tracking statistics, MetricsConfiguration config) {
         this.statistics = statistics;
         this.config = config;
         this.printStatisticsService = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() + 1);

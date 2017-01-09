@@ -5,11 +5,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class HttpLoadRunnerConfiguration {
-    @Value("${openexchange.loadrunner.hosts}")
-    private String hosts;
-
-    @Value("${openexchange.loadrunner.statistic.print.rate:5000}")
-    private long printRate;
+    @Value("${openexchange.loadrunner.uris}")
+    private String uris;
 
     @Value("${openexchange.loadrunner.concurrency:1}")
     private int concurrency;
@@ -17,12 +14,8 @@ public class HttpLoadRunnerConfiguration {
     @Value("${openexchange.loadrunner.rounds:1}")
     private int rounds;
 
-    public String[] getHosts() {
-        return hosts.split(",");
-    }
-
-    public long getPrintRate() {
-        return printRate;
+    public String[] getUris() {
+        return uris.split(",");
     }
 
     public int getConcurrency() {
