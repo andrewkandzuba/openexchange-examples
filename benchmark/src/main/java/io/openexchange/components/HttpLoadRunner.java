@@ -1,8 +1,6 @@
 package io.openexchange.components;
 
 import io.openexchange.configurations.HttpLoadRunnerConfiguration;
-import io.openexchange.statistics.Tracking;
-import io.openexchange.statistics.metrics.Request;
 import org.apache.http.*;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -18,12 +16,14 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.metrics.repository.MetricRepository;
+import org.springframework.boot.actuate.metrics.writer.Delta;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.net.URI;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,15 +31,19 @@ import static io.openexchange.utils.ExecutorsUtil.shutdownExecutorService;
 
 @Component
 public class HttpLoadRunner {
+    private static final String OPENEXCHANGE_HTTP_REQUEST_START_TIME = "openexchange.http.request.start.time";
+    private final static String COUNTER_OPENEXCHANGE_BENCHMARK_SERVER = "counter.openexchange.benchmark.server";
+
+    private static final int DEFAULT_KEEP_ALIVE = 5000;
     private static final Logger logger = LoggerFactory.getLogger(HttpLoadRunner.class);
 
     private final HttpLoadRunnerConfiguration config;
     private final ExecutorService hostsExecutorService;
     private final CloseableHttpClient httpClient;
-    private final Tracking statistics;
+    private final MetricRepository metricRepository;
 
     @Autowired
-    public HttpLoadRunner(HttpLoadRunnerConfiguration config, PoolingHttpClientConnectionManager cm, Tracking statistics) {
+    public HttpLoadRunner(HttpLoadRunnerConfiguration config, PoolingHttpClientConnectionManager cm, MetricRepository metricRepository) {
         this.config = config;
         this.hostsExecutorService = Executors.newFixedThreadPool(config.getUris().length);
         this.httpClient = HttpClients.custom()
@@ -52,7 +56,7 @@ public class HttpLoadRunner {
                             final HttpRequest request,
                             final HttpClientConnection conn,
                             final HttpContext context) throws IOException, HttpException {
-                        context.setAttribute("openexchange.http.request.start.time", System.currentTimeMillis());
+                        context.setAttribute(OPENEXCHANGE_HTTP_REQUEST_START_TIME, System.currentTimeMillis());
                         HttpResponse response = super.doSendRequest(request, conn, context);
                         HttpConnectionMetrics metrics = conn.getMetrics();
                         metrics.reset();
@@ -65,8 +69,12 @@ public class HttpLoadRunner {
                             final HttpClientConnection conn,
                             final HttpContext context) throws HttpException, IOException {
                         HttpResponse response = super.doReceiveResponse(request, conn, context);
-                        long total = System.currentTimeMillis() - (Long) (context.getAttribute("openexchange.http.request.start.time"));
-                        context.setAttribute("openexchange.http.request.total.time", total);
+                        long total = System.currentTimeMillis() - (Long) (context.getAttribute(OPENEXCHANGE_HTTP_REQUEST_START_TIME));
+                        String host = URI.create(context.getAttribute("http.target_host").toString()).getHost();
+                        metricRepository.increment(
+                                new Delta<Number>(
+                                        COUNTER_OPENEXCHANGE_BENCHMARK_SERVER + "." + host + ".time",
+                                        total));
                         HttpConnectionMetrics metrics = conn.getMetrics();
                         metrics.reset();
                         return response;
@@ -86,9 +94,9 @@ public class HttpLoadRunner {
                             }
                         }
                     }
-                    return 30000;
+                    return DEFAULT_KEEP_ALIVE;
                 }).build();
-        this.statistics = statistics;
+        this.metricRepository = metricRepository;
     }
 
     @PostConstruct
@@ -130,20 +138,21 @@ public class HttpLoadRunner {
         }
     }
 
-    private void query(final HttpGet httpget, final HttpContext httpContext) {
-        long time = 0;
-        boolean success = false;
-        try (CloseableHttpResponse response = httpClient.execute(httpget, httpContext)) {
+    private void query(final HttpGet httpGet, final HttpContext httpContext) {
+        String host = httpGet.getURI().getHost();
+        try (CloseableHttpResponse response = httpClient.execute(httpGet, httpContext)) {
             if (response.getStatusLine().getStatusCode() == 200) {
                 EntityUtils.consume(response.getEntity());
-                time = (Long) httpContext.getAttribute("openexchange.http.request.total.time");
-                success = true;
-
+                metricRepository.increment(
+                        new Delta<Number>(COUNTER_OPENEXCHANGE_BENCHMARK_SERVER + "." + host + ".success", 1)
+                );
             }
         } catch (IOException e) {
+            metricRepository.increment(
+                    new Delta<Number>(COUNTER_OPENEXCHANGE_BENCHMARK_SERVER + "." + host + ".failure", 1)
+            );
             logger.error(e.getMessage(), e);
         }
-        statistics.log(InetSocketAddress.createUnresolved(httpget.getURI().getHost(), httpget.getURI().getPort()), new Request(success, time));
     }
 
     private class GetThread extends Thread {

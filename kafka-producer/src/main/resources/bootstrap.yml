@@ -1,4 +1,4 @@
-server:
+metric:
   port: ${PORT:8100}
 
 spring:

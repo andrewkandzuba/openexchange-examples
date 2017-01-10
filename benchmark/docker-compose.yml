@@ -6,7 +6,7 @@ services:
     environment:
       JAVA_OPTS: |
         ${JAVA_OPTS}
-        -server
+        -metric
         -ea
         -Xms32m
         -Xmx64m
