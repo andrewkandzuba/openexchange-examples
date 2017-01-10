@@ -9,6 +9,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PreDestroy;
+
 
 @Service
 @EnableScheduling
@@ -25,5 +27,10 @@ public class MetricsService {
     @Scheduled(fixedDelayString = "${openexchange.statistic.metrics.print.rate:5000}", initialDelayString = "${openexchange.statistic.metrics.print.rate:5000}")
     public void export(){
         metrics.findAll().forEach(m -> logger.info("Reporting metric {}={}", m.getName(), m.getValue()));
+    }
+
+    @PreDestroy
+    private void destroy(){
+        export();
     }
 }
