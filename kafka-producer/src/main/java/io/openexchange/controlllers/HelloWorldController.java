@@ -21,6 +21,10 @@ public class HelloWorldController {
         this.environment = environment;
     }
 
+    @RequestMapping("/nothing")
+    public void nothing() {
+    }
+
     @RequestMapping("/hello")
     public String hello() {
         logger.debug("Hello World!!!");

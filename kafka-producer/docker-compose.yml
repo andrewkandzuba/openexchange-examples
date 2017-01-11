@@ -8,7 +8,6 @@ services:
       - "9011:9011"
     environment:
       JAVA_OPTS: |
-        ${JAVA_OPTS}
         -server
         -ea
         -Xms64m
@@ -29,6 +28,7 @@ services:
         -Dcom.sun.management.jmxremote.ssl=false
         -Dcom.sun.management.jmxremote.authenticate=false
         -Dcom.sun.management.jmxremote.local.only=false
+        ${JAVA_OPTS}
     restart: always
   kafka-producer2:
     image: openexchange/kafka-producer:latest
@@ -38,7 +38,6 @@ services:
       - "9012:9012"
     environment:
       JAVA_OPTS: |
-        ${JAVA_OPTS}
         -server
         -ea
         -Xms64m
@@ -59,4 +58,5 @@ services:
         -Dcom.sun.management.jmxremote.ssl=false
         -Dcom.sun.management.jmxremote.authenticate=false
         -Dcom.sun.management.jmxremote.local.only=false
+        ${JAVA_OPTS}
     restart: always

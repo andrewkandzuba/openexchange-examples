@@ -5,7 +5,6 @@ services:
     network_mode: "host"
     environment:
       JAVA_OPTS: |
-        ${JAVA_OPTS}
         -metric
         -ea
         -Xms32m
@@ -16,4 +15,5 @@ services:
         -XX:+UseConcMarkSweepGC
         -XX:GCTimeRatio=19
         -XX:+CMSParallelRemarkEnabled
+        ${JAVA_OPTS}
     restart: always
