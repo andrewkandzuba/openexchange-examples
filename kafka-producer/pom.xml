@@ -17,8 +17,8 @@
     <dependencies>
         <dependency>
             <groupId>io.openexchange</groupId>
-            <artifactId>metrics</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
+            <artifactId>openexchange-boot-metrics</artifactId>
+            <version>1.0.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
