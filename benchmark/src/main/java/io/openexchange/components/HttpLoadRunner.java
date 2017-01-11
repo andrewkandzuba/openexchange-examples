@@ -25,6 +25,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -37,14 +38,14 @@ public class HttpLoadRunner {
 
     private final HttpLoadRunnerConfiguration config;
     private final MetricRepository metricRepository;
-    private final FutureRequestExecutionService futureRequestExecutionService;
+    private final FutureRequestExecutionService futuresEs;
     private final ApplicationContext appContext;
 
     @Autowired
     public HttpLoadRunner(HttpLoadRunnerConfiguration config, MetricRepository metricRepository, ApplicationContext appContext) {
         this.config = config;
         this.metricRepository = metricRepository;
-        this.futureRequestExecutionService = new FutureRequestExecutionService(create(), Executors.newFixedThreadPool(config.getConcurrency()));
+        this.futuresEs = new FutureRequestExecutionService(create(), Executors.newFixedThreadPool(config.getConcurrency()));
         this.appContext = appContext;
     }
 
@@ -53,14 +54,17 @@ public class HttpLoadRunner {
         logger.info("Starting load runner...");
         new Thread(() -> {
             try {
-                CountDownLatch latch = new CountDownLatch(config.getUris().length * config.getRounds() * config.getConcurrency());
                 logger.info("Run test");
-                for (String host : config.getUris()) runRound(URI.create(host), latch);
-                logger.info("Waiting for test complete");
-                latch.await();
+                Random randomize = new Random();
+                for (int r = 0; r < config.getRounds(); r++) {
+                    CountDownLatch latch = new CountDownLatch(config.getConcurrency());
+                    for (int c = 0; c < config.getConcurrency(); c++)
+                        scheduleRequestTo(URI.create(config.getUris()[randomize.nextInt(config.getUris().length)]), latch);
+                    latch.await();
+                    logger.info(config.getConcurrency() * (r + 1) + " requests have been completed");
+                }
                 logger.info("Test has been completed");
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage(), e);
+            } catch (InterruptedException ignored) {
             } finally {
                 initiateShutdown();
             }
@@ -72,66 +76,49 @@ public class HttpLoadRunner {
     private void destroy() {
         logger.info("Stopping load runner...");
         try {
-            futureRequestExecutionService.close();
+            futuresEs.close();
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
         logger.info("Load runner has been stopped");
     }
 
-    private void initiateShutdown(){
+    private void initiateShutdown() {
         SpringApplication.exit(appContext, () -> 0);
     }
 
-    private void runRound(URI host, CountDownLatch latch) {
-        for (int r = 0; r < config.getConcurrency() * config.getRounds(); r++) {
-            futureRequestExecutionService.execute(
-                    new HttpGet(host),
-                    HttpClientContext.create(),
-                    httpResponse -> httpResponse.getStatusLine().getStatusCode() == 200,
-                    new FutureCallback<Boolean>() {
-
-                        @Override
-                        public void completed(Boolean aBoolean) {
-                            metricRepository.set(
-                                    new Metric<Number>(
-                                            COUNTER_OPENEXCHANGE_BENCHMARK_SERVER + "." + host.getHost() + ".activeConnectionCount",
-                                            futureRequestExecutionService.metrics().getActiveConnectionCount()));
-                            metricRepository.set(
-                                    new Metric<Number>(
-                                            COUNTER_OPENEXCHANGE_BENCHMARK_SERVER + "." + host.getHost() + ".taskAverageDuration",
-                                            futureRequestExecutionService.metrics().getTaskAverageDuration()));
-                            metricRepository.set(
-                                    new Metric<Number>(
-                                            COUNTER_OPENEXCHANGE_BENCHMARK_SERVER + "." + host.getHost() + ".requestAverageDuration",
-                                            futureRequestExecutionService.metrics().getRequestAverageDuration()));
-                            metricRepository.increment(
-                                    new Delta<Number>(COUNTER_OPENEXCHANGE_BENCHMARK_SERVER + "." + host.getHost() + ".successfulRequests", 1)
-                            );
-                            latch.countDown();
-                        }
-
-                        @Override
-                        public void failed(Exception e) {
-                            metricRepository.increment(
-                                    new Delta<Number>(COUNTER_OPENEXCHANGE_BENCHMARK_SERVER + "." + host.getHost() + ".failedRequests", 1)
-                            );
-                            latch.countDown();
-                        }
-
-                        @Override
-                        public void cancelled() {
-                            metricRepository.increment(
-                                    new Delta<Number>(COUNTER_OPENEXCHANGE_BENCHMARK_SERVER + "." + host.getHost() + ".failedRequests", 1)
-                            );
-                            latch.countDown();
-                        }
+    private void scheduleRequestTo(final URI host, final CountDownLatch latch) {
+        final String serverId = COUNTER_OPENEXCHANGE_BENCHMARK_SERVER + "." + host.getHost().replace(".", "_") + "_" + host.getPort();
+        futuresEs.execute(
+                new HttpGet(host),
+                HttpClientContext.create(),
+                httpResponse -> httpResponse.getStatusLine().getStatusCode() == 200,
+                new FutureCallback<Boolean>() {
+                    @Override
+                    public void completed(Boolean aBoolean) {
+                        metricRepository.set(new Metric<Number>(serverId + ".activeConnectionCount", futuresEs.metrics().getActiveConnectionCount()));
+                        metricRepository.set(new Metric<Number>(serverId + ".taskAverageDuration", futuresEs.metrics().getTaskAverageDuration()));
+                        metricRepository.set(new Metric<Number>(serverId + ".requestAverageDuration", futuresEs.metrics().getRequestAverageDuration()));
+                        metricRepository.increment(new Delta<Number>(serverId + ".successfulRequests", 1));
+                        latch.countDown();
                     }
-            );
-        }
+
+                    @Override
+                    public void failed(Exception e) {
+                        metricRepository.increment(new Delta<Number>(serverId + ".failedRequests", 1));
+                        latch.countDown();
+                    }
+
+                    @Override
+                    public void cancelled() {
+                        metricRepository.increment(new Delta<Number>(serverId + ".failedRequests", 1));
+                        latch.countDown();
+                    }
+                }
+        );
     }
 
-    private HttpClient create(){
+    private HttpClient create() {
         return HttpClients.custom()
                 .setMaxConnPerRoute(config.getConcurrency())
                 .setMaxConnTotal(config.getConcurrency() * config.getUris().length)
