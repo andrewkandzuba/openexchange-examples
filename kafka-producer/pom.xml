@@ -57,52 +57,6 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>${fabric8.docker-maven-plugin.version}</version>
-                <configuration>
-                    <verbose>true</verbose>
-                    <images>
-                        <image>
-                            <alias>kafka-producer</alias>
-                            <name>%g/kafka-producer:${project.version}</name>
-                            <build>
-                                <tags>
-                                    <tag>latest</tag>
-                                    <tag>${project.version}</tag>
-                                </tags>
-                                <from>openjdk:8</from>
-                                <assembly>
-                                    <mode>tgz</mode>
-                                    <permissions>ignore</permissions>
-                                    <inline>
-                                        <dependencySets>
-                                            <dependencySet>
-                                                <includes>
-                                                    <include>${project.groupId}:kafka-producer:jar:${project.version}
-                                                    </include>
-                                                </includes>
-                                                <outputFileNameMapping>kafka-producer.jar</outputFileNameMapping>
-                                            </dependencySet>
-                                        </dependencySets>
-                                    </inline>
-                                </assembly>
-                                <entryPoint>
-                                    <shell>java $JAVA_OPTS -Djava.security.egd=file:/dev/urandom -jar \
-                                        /maven/kafka-producer.jar
-                                    </shell>
-                                </entryPoint>
-                            </build>
-                        </image>
-                    </images>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>docker</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
