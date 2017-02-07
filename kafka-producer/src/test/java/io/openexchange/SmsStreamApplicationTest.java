@@ -1,6 +1,5 @@
 package io.openexchange;
 
-import io.openexchange.configuration.SmsChannel;
 import io.openexchange.pojos.Sms;
 import io.openexchange.producers.SmsProducer;
 import org.junit.BeforeClass;
@@ -9,6 +8,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.stream.messaging.Sink;
+import org.springframework.cloud.stream.messaging.Source;
 import org.springframework.kafka.test.rule.KafkaEmbedded;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
@@ -26,7 +27,9 @@ import static org.junit.Assert.*;
 @TestPropertySource(locations = "classpath:test.properties")
 public class SmsStreamApplicationTest {
     @Autowired
-    private SmsChannel channel;
+    private Source source;
+    @Autowired
+    private Sink sink;
     @Autowired
     private SmsProducer smsProducer;
 
@@ -37,18 +40,22 @@ public class SmsStreamApplicationTest {
     public static void setUpBeforeClass() throws Exception {
         System.setProperty("spring.cloud.stream.kafka.binder.defaultZkPort", Integer.toString(embeddedKafka.getZookeeper().port()));
         System.setProperty("spring.cloud.stream.kafka.binder.brokers", embeddedKafka.getBrokersAsString());
-        System.out.println();
+
+        System.setProperty("spring.cloud.stream.bindings.output.destination", "smsTopic");
+        System.setProperty("spring.cloud.stream.bindings.input.destination", "smsTopic");
+        System.setProperty("spring.cloud.stream.bindings.input.group", "smsGroup");
     }
 
     @Test
     public void contextLoads() {
-        assertNotNull(this.channel.sms());
+        assertNotNull(this.source.output());
+        assertNotNull(this.sink.input());
     }
 
     @Test
     public void testSendReceive() throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
-        channel.sms().subscribe(message -> {
+        sink.input().subscribe(message -> {
             assertTrue(message.getPayload() instanceof Sms);
             Sms sms = (Sms) message.getPayload();
             assertEquals("+3725811223344", sms.getMobileTerminate());
