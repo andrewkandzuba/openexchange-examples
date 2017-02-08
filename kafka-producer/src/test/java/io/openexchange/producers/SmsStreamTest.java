@@ -1,7 +1,6 @@
-package io.openexchange;
+package io.openexchange.producers;
 
 import io.openexchange.pojos.Sms;
-import io.openexchange.producers.SmsProducer;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -18,14 +17,15 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static io.openexchange.utils.SmsFactory.of;
 import static org.junit.Assert.*;
 
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @DirtiesContext
 @TestPropertySource(locations = "classpath:test.properties")
-public class SmsStreamApplicationTest {
+public class SmsStreamTest {
     @Autowired
     private Source source;
     @Autowired
@@ -40,7 +40,6 @@ public class SmsStreamApplicationTest {
     public static void setUpBeforeClass() throws Exception {
         System.setProperty("spring.cloud.stream.kafka.binder.defaultZkPort", Integer.toString(embeddedKafka.getZookeeper().port()));
         System.setProperty("spring.cloud.stream.kafka.binder.brokers", embeddedKafka.getBrokersAsString());
-
         System.setProperty("spring.cloud.stream.bindings.output.destination", "smsTopic");
         System.setProperty("spring.cloud.stream.bindings.input.destination", "smsTopic");
         System.setProperty("spring.cloud.stream.bindings.input.group", "smsGroup");
@@ -65,7 +64,7 @@ public class SmsStreamApplicationTest {
             assertNotNull(sms.getReceiveTime());
             latch.countDown();
         });
-        smsProducer.produce("+3725811223344", "+3725844332211", "Test sms");
+        smsProducer.send(of("+3725811223344", "+3725844332211", "Test sms"));
         assertTrue(latch.await(5000, TimeUnit.MILLISECONDS));
     }
 }

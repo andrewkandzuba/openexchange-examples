@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "Validation error details",
+  "type": "object",
+  "id": "ValidationError",
+  "additionalProperties": false,
+  "generate-builders": true,
+  "properties": {
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "required": true
+    },
+    "errorMessage": {
+      "type": "string",
+      "required": true
+    }
+  }
+}
