@@ -25,6 +25,8 @@
         <module>refreshscopeclient</module>
         <module>kafka-producer</module>
         <module>vadidation</module>
+        <module>kafka-consumer</module>
+        <module>kafka-sms-transport</module>
     </modules>
 
 </project>

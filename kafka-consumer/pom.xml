@@ -10,24 +10,14 @@
         <version>1.0.2-SNAPSHOT</version>
     </parent>
 
-    <artifactId>kafka-producer</artifactId>
+    <artifactId>kafka-consumer</artifactId>
     <name>openexchange ::: ${project.artifactId}</name>
     <version>1.0.2-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
             <groupId>io.openexchange</groupId>
-            <artifactId>openexchange-boot-metrics</artifactId>
-            <version>1.0.4-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>io.openexchange</groupId>
             <artifactId>sms</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>io.openexchange</groupId>
-            <artifactId>vadidation</artifactId>
             <version>1.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
@@ -41,18 +31,27 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bus-kafka</artifactId>
+            <!-- exclusions>
+                <exclusion>
+                    <groupId>org.apache.kafka</groupId>
+                    <artifactId>kafka-clients</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.kafka</groupId>
+                    <artifactId>kafka_2.11</artifactId>
+                </exclusion>
+            </exclusions -->
+        </dependency>
+        <!-- dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>0.10.1.1</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka-test</artifactId>
-            <version>1.0.4.RELEASE</version>
-            <scope>test</scope>
-        </dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_2.11</artifactId>
+            <version>0.10.1.1</version>
+        </dependency -->
     </dependencies>
     <build>
         <resources>
@@ -93,4 +92,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>

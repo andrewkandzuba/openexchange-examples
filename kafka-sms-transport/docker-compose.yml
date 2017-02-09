@@ -1,0 +1,20 @@
+version: "2"
+services:
+  kafka:
+    image: spotify/kafka
+    network_mode: "host"
+    ports:
+      - "2181:2181"
+      - "7209:7209"
+      - "9092:9092"
+    environment:
+      JMX_PORT: 7209
+      ADVERTISED_HOST: 192.168.99.100
+      ADVERTISED_PORT: 9092
+  kafka-manager:
+    image: sheepkiller/kafka-manager
+    network_mode: "host"
+    ports:
+      - "9000:9000"
+    depends_on:
+      - kafka

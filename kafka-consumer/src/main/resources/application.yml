@@ -1,0 +1,6 @@
+zuul:
+  routes:
+    kafka-consumer:
+      path: /kafka-consumer/**
+      serviceId: kafka-consumer
+      stripPrefix: false

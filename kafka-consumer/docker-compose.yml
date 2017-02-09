@@ -1,11 +1,11 @@
 version: '2'
 services:
-  kafka-producer1:
-    image: openexchange/kafka-producer:latest
+  kafka-consumer:
+    image: openexchange/kafka-consumer:latest
     network_mode: "host"
     ports:
-      - "8101:8101"
-      - "9011:9011"
+      - "8102:8102"
+      - "9012:9012"
     environment:
       JAVA_OPTS: |
         -server
@@ -19,10 +19,10 @@ services:
         -XX:GCTimeRatio=19
         -XX:+CMSParallelRemarkEnabled
         -Dserver.tomcat.max-threads=200
-        -Dserver.port=8101
-        -Dcom.sun.management.jmxremote.rmi.port=9011
+        -Dserver.port=8102
+        -Dcom.sun.management.jmxremote.rmi.port=9012
         -Dcom.sun.management.jmxremote=true
-        -Dcom.sun.management.jmxremote.port=9011
+        -Dcom.sun.management.jmxremote.port=9012
         -Dcom.sun.management.jmxremote.ssl=false
         -Dcom.sun.management.jmxremote.authenticate=false
         -Dcom.sun.management.jmxremote.local.only=false
