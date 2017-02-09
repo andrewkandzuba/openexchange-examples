@@ -16,12 +16,8 @@ import javax.validation.Valid;
 
 @RestController
 public class SmsController {
-    private final SmsProducer smsProducer;
-
     @Autowired
-    public SmsController(SmsProducer smsProducer) {
-        this.smsProducer = smsProducer;
-    }
+    private SmsProducer smsProducer;
 
     @RequestMapping(path = "/sms", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity sms(@Valid @RequestBody Sms sms, Errors errors) {
