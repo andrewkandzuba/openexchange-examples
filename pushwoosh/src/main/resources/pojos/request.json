@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "PushWoosh request",
+  "type": "object",
+  "id": "request",
+  "additionalProperties": false,
+  "generate-builders": true,
+  "properties": {
+    "userId": {
+      "type": "string",
+      "required": true
+    },
+    "application": {
+      "type": "string",
+      "required": true
+    },
+    "hwid": {
+      "type": "string",
+      "format": "phone",
+      "required": true
+    },
+    "tz_offset": {
+      "type": "string",
+      "default": 0,
+      "format":"utc-millisec",
+      "required": true
+    },
+    "device_type": {
+      "type": "string",
+      "default": 3,
+      "format":"utc-millisec",
+      "required": true
+    }
+  }
+}

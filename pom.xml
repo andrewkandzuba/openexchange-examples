@@ -27,6 +27,7 @@
         <module>vadidation</module>
         <module>kafka-consumer</module>
         <module>kafka-sms-transport</module>
+        <module>pushwoosh</module>
     </modules>
 
 </project>
