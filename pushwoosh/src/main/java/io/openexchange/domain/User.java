@@ -1,13 +1,13 @@
 package io.openexchange.domain;
 
 public class User {
-    private final String code;
+    private final String id;
 
-    public User(String code) {
-        this.code = code;
+    public User(String id) {
+        this.id = id;
     }
 
-    public String getCode() {
-        return code;
+    public String getId() {
+        return id;
     }
 }

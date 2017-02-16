@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "PushWoosh response messages",
+  "type": "object",
+  "id": "messages",
+  "additionalProperties": false,
+  "generate-builders": true,
+  "properties": {
+    "Messages": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

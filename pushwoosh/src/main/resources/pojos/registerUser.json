@@ -1,16 +1,20 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema",
-  "description": "PushWoosh request",
+  "description": "PushWoosh user registration request",
   "type": "object",
-  "id": "request",
+  "id": "registerUser",
   "additionalProperties": false,
   "generate-builders": true,
   "properties": {
-    "userId": {
+    "auth": {
       "type": "string",
       "required": true
     },
     "application": {
+      "type": "string",
+      "required": true
+    },
+    "userId": {
       "type": "string",
       "required": true
     },
@@ -22,13 +26,12 @@
     "tz_offset": {
       "type": "string",
       "default": 0,
-      "format":"utc-millisec",
+      "format": "utc-millisec",
       "required": true
     },
     "device_type": {
-      "type": "string",
-      "default": 3,
-      "format":"utc-millisec",
+      "type": "integer",
+      "default": 1,
       "required": true
     }
   }

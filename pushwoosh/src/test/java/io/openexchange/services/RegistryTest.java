@@ -2,6 +2,7 @@ package io.openexchange.services;
 
 import io.openexchange.domain.Application;
 import io.openexchange.domain.Device;
+import io.openexchange.domain.Type;
 import io.openexchange.domain.User;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,7 +28,10 @@ public class RegistryTest {
 
     private final User user = new User("push.user@pushwoosh.com");
     private final Application app = new Application("E912E-5E034");
-    private final Device device = new Device("6466BB37-AFF8-4A65-8CDF-85D80FDCD846");
+    private final Device device = new Device(
+            "5E9C794E-BF59-4DC9-A501-4CB56150CA43",
+            "e8f22461ff9518e70def5b7203f6f91a0125837ff59edb90c95905e678a0501e",
+            Type.IOS);
 
     @Before
     public void setUp() throws Exception {

@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "PushWoosh request wrapper",
+  "type": "object",
+  "id": "pushRequest",
+  "additionalProperties": false,
+  "generate-builders": true,
+  "properties": {
+    "request": {
+      "type": "any",
+      "required": true
+    }
+  }
+}

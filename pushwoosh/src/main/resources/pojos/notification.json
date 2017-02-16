@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "PushWoosh notification details",
+  "type": "object",
+  "id": "notification",
+  "additionalProperties": false,
+  "generate-builders": true,
+  "properties": {
+    "send_date": {
+      "type": "string",
+      "default": "now",
+      "required": true
+    },
+    "ignore_user_timezone": {
+      "type": "boolean",
+      "default": true,
+      "required": true
+    },
+    "content": {
+      "type": "string",
+      "required": true
+    },
+    "users": {
+      "items": {
+        "type": "string"
+      }
+    },
+    "devices": {
+      "items": {
+        "type": "string",
+        "format": "phone"
+      }
+    }
+  }
+}
