@@ -5,8 +5,8 @@ import io.openexchange.domain.Device;
 import io.openexchange.domain.Type;
 import io.openexchange.domain.User;
 import io.openexchange.pushwoosh.ProviderConfiguration;
+import io.openexchange.pushwoosh.PushWooshResponseException;
 import io.openexchange.services.Registry;
-import io.openexchange.services.RegistryTest;
 import io.openexchange.services.Sender;
 import org.junit.After;
 import org.junit.Before;
@@ -17,11 +17,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.IOException;
+
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
-        RegistryTest.class,
         ProviderConfiguration.class
 })
 @TestPropertySource("classpath:test.properties")
@@ -43,19 +45,29 @@ public class PushWooshIT {
         assertTrue(registry.add(app, device));
     }
 
-    @Test
-    public void registerUserAndSendNotification() throws Exception {
+    /**
+     *  Requires Enterprise PushWoosh account to operate without PushWooshResponseException.
+     *  See: http://docs.pushwoosh.com/docs/user-id-push for more details.
+     * @throws IOException - when communication channel is broken or HTTP response contains any code >= 200.
+     * @throws PushWooshResponseException - if logical PushWoosh exception has happened.
+     */
+    @Test(expected = PushWooshResponseException.class)
+    public void registerUserAndSendNotification() throws IOException, PushWooshResponseException {
         assertTrue(registry.assign(user, app, device));
-        assertTrue(sender.push(app, "Push to user", user));
+        assertNotNull(sender.push(app, "Push to user", user));
     }
 
     @Test
-    public void sendToDevice() throws Exception {
-        assertTrue(sender.push(app, "Push to device", device));
+    public void sendToDevice() throws IOException, PushWooshResponseException {
+        assertNotNull(sender.push(app, "Push to device", device));
+    }
+
+    public void trackMessage() throws IOException, PushWooshResponseException {
+        assertNotNull(sender.push(app, "Push to device", device));
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() throws IOException, PushWooshResponseException {
         assertTrue(registry.remove(app, device));
     }
 }

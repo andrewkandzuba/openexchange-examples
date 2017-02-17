@@ -1,8 +1,7 @@
 package io.openexchange.domain;
 
 public enum Type {
-    IOS(1),
-    ANDROID(2);
+    IOS(1);
 
     private int code;
 
