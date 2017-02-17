@@ -2,9 +2,11 @@ package io.openexchange.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.openexchange.controlllers.RegistryController;
-import io.openexchange.pojos.api.RegistryPayload;
+import io.openexchange.pojos.api.RegisterDevicePayload;
+import io.openexchange.pojos.api.RegistryUserPayload;
 import io.openexchange.pojos.domain.Application;
 import io.openexchange.pojos.domain.Device;
+import io.openexchange.pojos.domain.User;
 import io.openexchange.services.Registry;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +39,7 @@ public class RegisterControllerTest {
 
     private final Application application = new Application().withCode("2222-3333");
     private final Device device = new Device().withHwid("xxxxxxx").withToken("yyyyyy").withType(Device.Type._1);
+    private final User user = new User().withId("zzzzzz");
 
     @Before
     public void setUp() throws Exception {
@@ -47,12 +50,12 @@ public class RegisterControllerTest {
     @Test
     public void registryValidationFailed() throws Exception {
         mockMvc.perform(post("/registry/add")
-                .content(mapper.writeValueAsString(new RegistryPayload()))
+                .content(mapper.writeValueAsString(new RegisterDevicePayload()))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
         mockMvc.perform(post("/registry/remove")
-                .content(mapper.writeValueAsString(new RegistryPayload()))
+                .content(mapper.writeValueAsString(new RegisterDevicePayload()))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -65,7 +68,7 @@ public class RegisterControllerTest {
         mockMvc.perform(post("/registry/add")
                 .content(
                         mapper.writeValueAsString(
-                                new RegistryPayload()
+                                new RegisterDevicePayload()
                                         .withApplication(application)
                                         .withDevice(device)))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -74,7 +77,7 @@ public class RegisterControllerTest {
         mockMvc.perform(post("/registry/remove")
                 .content(
                         mapper.writeValueAsString(
-                                new RegistryPayload()
+                                new RegisterDevicePayload()
                                         .withApplication(application)
                                         .withDevice(device)))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -89,7 +92,7 @@ public class RegisterControllerTest {
         mockMvc.perform(post("/registry/add")
                 .content(
                         mapper.writeValueAsString(
-                                new RegistryPayload()
+                                new RegisterDevicePayload()
                                         .withApplication(application)
                                         .withDevice(device)))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -98,10 +101,25 @@ public class RegisterControllerTest {
         mockMvc.perform(post("/registry/remove")
                 .content(
                         mapper.writeValueAsString(
-                                new RegistryPayload()
+                                new RegisterDevicePayload()
                                         .withApplication(application)
                                         .withDevice(device)))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    public void assignUserToApplication() throws Exception {
+        when(registry.assign(any(User.class), any(Application.class), any(Device.class))).thenReturn(true);
+
+        mockMvc.perform(post("/registry/assign")
+                .content(
+                        mapper.writeValueAsString(
+                                new RegistryUserPayload()
+                                        .withApplication(application)
+                                        .withDevice(device)
+                                        .withUser(user)))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 }
