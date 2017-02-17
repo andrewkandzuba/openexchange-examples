@@ -1,4 +1,4 @@
-package io.openexchange.api;
+package io.openexchange.pushwoosh;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.openexchange.pojos.pushwoosh.PushResponse;

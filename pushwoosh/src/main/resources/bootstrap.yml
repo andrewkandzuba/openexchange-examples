@@ -1,17 +1,6 @@
-metric:
-  port: ${PORT:8100}
+server:
+  port: ${PORT:8115}
 
 spring:
   application:
     name: pushwoosh
-
-eureka:
-  instance:
-    leaseRenewalIntervalInSeconds: 1
-    leaseExpirationDurationInSeconds: 2
-    hostname: ${vcap.application.uris[0]:localhost}
-    instanceId: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}
-  client:
-    enabled: true
-    serviceUrl:
-      defaultZone: ${vcap.services.eureka-service.credentials.host:http://localhost:8761}/eureka/

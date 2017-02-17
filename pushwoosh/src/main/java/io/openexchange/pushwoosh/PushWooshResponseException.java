@@ -17,4 +17,13 @@ public class PushWooshResponseException extends Exception {
                 ", message='" + message + '\'' +
                 '}';
     }
+
+    public int getCode() {
+        return code;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
 }

@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "Push service general response payload",
+  "type": "object",
+  "id": "generalResponse",
+  "additionalProperties": false,
+  "generate-builders": true,
+  "properties": {
+    "code": {
+      "type" : "integer",
+      "required": true
+    },
+    "description": {
+      "type": "string",
+      "required": true
+    }
+  }
+}
