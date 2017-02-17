@@ -1,9 +1,9 @@
 package io.openexchange.pushwoosh;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.openexchange.domain.Application;
-import io.openexchange.domain.Device;
-import io.openexchange.domain.User;
+import io.openexchange.pojos.domain.Application;
+import io.openexchange.pojos.domain.Device;
+import io.openexchange.pojos.domain.User;
 import io.openexchange.pojos.pushwoosh.*;
 import io.openexchange.services.Registry;
 import io.openexchange.services.Reporter;
@@ -79,7 +79,7 @@ public class ProviderConfiguration {
                                                 .withApplication(application.getCode())
                                                 .withHwid(device.getHwid())
                                                 .withPushToken(device.getToken())
-                                                .withDeviceType(device.getType().getCode()))).getStatusCode() == 200;
+                                                .withDeviceType(device.getType().value()))).getStatusCode() == 200;
             }
 
             @Override
@@ -92,7 +92,7 @@ public class ProviderConfiguration {
                                                 .withApplication(application.getCode())
                                                 .withHwid(device.getHwid())
                                                 .withPushToken(device.getToken())
-                                                .withDeviceType(device.getType().getCode()))).getStatusCode() == 200;
+                                                .withDeviceType(device.getType().value()))).getStatusCode() == 200;
             }
         };
     }

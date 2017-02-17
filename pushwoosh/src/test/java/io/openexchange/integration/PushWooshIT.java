@@ -1,9 +1,8 @@
 package io.openexchange.integration;
 
-import io.openexchange.domain.Application;
-import io.openexchange.domain.Device;
-import io.openexchange.domain.Type;
-import io.openexchange.domain.User;
+import io.openexchange.pojos.domain.Application;
+import io.openexchange.pojos.domain.Device;
+import io.openexchange.pojos.domain.User;
 import io.openexchange.pojos.pushwoosh.Row;
 import io.openexchange.pushwoosh.ProviderConfiguration;
 import io.openexchange.pushwoosh.PushWooshResponseException;
@@ -36,12 +35,12 @@ public class PushWooshIT {
     @Autowired
     private Reporter reporter;
 
-    private final User user = new User("push.user@pushwoosh.com");
-    private final Application app = new Application("93689-F08F3");
-    private final Device device = new Device(
-            "5E9C794E-BF59-4DC9-A501-4CB56150CA43",
-            "e8f22461ff9518e70def5b7203f6f91a0125837ff59edb90c95905e678a0501e",
-            Type.IOS);
+    private final User user = new User().withId("push.user@pushwoosh.com");
+    private final Application app = new Application().withCode("93689-F08F3");
+    private final Device device = new Device()
+            .withHwid("5E9C794E-BF59-4DC9-A501-4CB56150CA43")
+            .withToken("e8f22461ff9518e70def5b7203f6f91a0125837ff59edb90c95905e678a0501e")
+            .withType(Device.Type._1);
 
     @Before
     public void setUp() throws Exception {

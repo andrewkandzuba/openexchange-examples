@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface Reporter {
     String getMessageStats(String messageId) throws IOException, PushWooshResponseException;
+
     List<Row> getResults(String requestId) throws IOException, PushWooshResponseException;
 }

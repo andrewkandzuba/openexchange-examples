@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "Device details",
+  "type": "object",
+  "id": "device",
+  "additionalProperties": false,
+  "generate-builders": true,
+  "properties": {
+    "hwid": {
+      "type": "string",
+      "required": true
+    },
+    "token": {
+      "type": "string",
+      "required": true
+    },
+    "type": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    }
+  }
+}

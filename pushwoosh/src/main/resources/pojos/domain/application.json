@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "Application details",
+  "type": "object",
+  "id": "application",
+  "additionalProperties": false,
+  "generate-builders": true,
+  "properties": {
+    "code": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

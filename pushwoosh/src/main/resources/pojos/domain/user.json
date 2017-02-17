@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "User details",
+  "type": "object",
+  "id": "user",
+  "additionalProperties": false,
+  "generate-builders": true,
+  "properties": {
+    "id": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

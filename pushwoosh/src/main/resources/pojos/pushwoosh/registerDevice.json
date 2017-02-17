@@ -20,7 +20,6 @@
     },
     "hwid": {
       "type": "string",
-      "format": "phone",
       "required": true
     },
     "language": {
