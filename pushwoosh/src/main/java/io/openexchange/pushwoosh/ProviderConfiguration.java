@@ -42,7 +42,7 @@ public class ProviderConfiguration {
     private int maxTotal;
     @Value("${openexchange.pushwoosh.api.accesstoken}")
     private String accessToken;
-    @Value("${openexchange.pushwoosh.api.endpoint}")
+    @Value("${openexchange.pushwoosh.api.endpoint:https://cp.pushwoosh.com/json/1.3}")
     private String endpoint;
 
     @Bean
