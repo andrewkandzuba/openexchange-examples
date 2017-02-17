@@ -14,33 +14,23 @@
     <name>openexchange ::: ${project.artifactId}</name>
     <version>1.0.2-SNAPSHOT</version>
 
+    <properties>
+        <apache.hc.fluent-hc.version>4.5.3</apache.hc.fluent-hc.version>
+        <jsonschema2pojo-maven-plugin.version>0.4.30</jsonschema2pojo-maven-plugin.version>
+    </properties>
+
     <dependencies>
         <dependency>
-            <groupId>io.openexchange</groupId>
-            <artifactId>openexchange-boot-metrics</artifactId>
-            <version>1.0.4-SNAPSHOT</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.openexchange</groupId>
-            <artifactId>sms</artifactId>
-            <version>1.0.2</version>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.openexchange</groupId>
-            <artifactId>vadidation</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-eureka</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-config-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-bus-kafka</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -49,7 +39,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>fluent-hc</artifactId>
-            <version>4.5.3</version>
+            <version>${apache.hc.fluent-hc.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -97,18 +87,27 @@
             <plugin>
                 <groupId>org.jsonschema2pojo</groupId>
                 <artifactId>jsonschema2pojo-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <configuration combine.self="override">
-                    <additionalClasspathElements>
-                        <additionalClasspathElement>${project.build.directory}/classes</additionalClasspathElement>
-                    </additionalClasspathElements>
-                </configuration>
+                <version>${jsonschema2pojo-maven-plugin.version}</version>
             </plugin>
         </plugins>
     </build>
 
-
+    <profiles>
+        <profile>
+            <id>it-test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration combine.self="override">
+                            <additionalClasspathElements>
+                                <additionalClasspathElement>${project.build.directory}/classes</additionalClasspathElement>
+                            </additionalClasspathElements>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

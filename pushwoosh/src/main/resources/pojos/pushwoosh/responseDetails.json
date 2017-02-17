@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema",
-  "description": "PushWoosh response messages",
+  "description": "PushWoosh response details",
   "type": "object",
   "id": "messages",
   "additionalProperties": false,
@@ -10,6 +10,18 @@
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "formatter": {
+      "type": "string"
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "$ref": "row.json"
       }
     }
   }

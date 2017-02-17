@@ -21,14 +21,15 @@
       "required": true
     },
     "users": {
+      "type" : "array",
       "items": {
         "type": "string"
       }
     },
     "devices": {
+      "type" : "array",
       "items": {
-        "type": "string",
-        "format": "phone"
+        "type": "string"
       }
     }
   }

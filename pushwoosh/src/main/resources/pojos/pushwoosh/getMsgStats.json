@@ -1,21 +1,18 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema",
-  "description": "PushWoosh response",
+  "description": "PushWoosh get message statistics",
   "type": "object",
-  "id": "pushResponse",
+  "id": "messages",
   "additionalProperties": false,
   "generate-builders": true,
   "properties": {
-    "status_code": {
-      "type": "integer",
-      "required": true
-    },
-    "status_message": {
+    "auth": {
       "type": "string",
       "required": true
     },
-    "response": {
-      "$ref": "responseDetails.json"
+    "message": {
+      "type": "string",
+      "required": true
     }
   }
 }

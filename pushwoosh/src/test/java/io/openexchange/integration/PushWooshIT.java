@@ -4,9 +4,11 @@ import io.openexchange.domain.Application;
 import io.openexchange.domain.Device;
 import io.openexchange.domain.Type;
 import io.openexchange.domain.User;
+import io.openexchange.pojos.pushwoosh.Row;
 import io.openexchange.pushwoosh.ProviderConfiguration;
 import io.openexchange.pushwoosh.PushWooshResponseException;
 import io.openexchange.services.Registry;
+import io.openexchange.services.Reporter;
 import io.openexchange.services.Sender;
 import org.junit.After;
 import org.junit.Before;
@@ -18,6 +20,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -32,6 +35,8 @@ public class PushWooshIT {
     private Registry registry;
     @Autowired
     private Sender sender;
+    @Autowired
+    private Reporter reporter;
 
     private final User user = new User("push.user@pushwoosh.com");
     private final Application app = new Application("93689-F08F3");
@@ -46,9 +51,10 @@ public class PushWooshIT {
     }
 
     /**
-     *  Requires Enterprise PushWoosh account to operate without PushWooshResponseException.
-     *  See: http://docs.pushwoosh.com/docs/user-id-push for more details.
-     * @throws IOException - when communication channel is broken or HTTP response contains any code >= 200.
+     * Requires Enterprise PushWoosh account to operate without PushWooshResponseException.
+     * See: http://docs.pushwoosh.com/docs/user-id-push for more details.
+     *
+     * @throws IOException                - when communication channel is broken or HTTP response contains any code >= 200.
      * @throws PushWooshResponseException - if logical PushWoosh exception has happened.
      */
     @Test(expected = PushWooshResponseException.class)
@@ -62,8 +68,14 @@ public class PushWooshIT {
         assertNotNull(sender.push(app, "Push to device", device));
     }
 
-    public void trackMessage() throws IOException, PushWooshResponseException {
-        assertNotNull(sender.push(app, "Push to device", device));
+    @Test
+    public void trackMessageStatistics() throws IOException, PushWooshResponseException, InterruptedException {
+        List<String> messages = sender.push(app, "Push to device with tracking", device);
+        assertTrue(messages.size() == 1);
+        String requestId = reporter.getMessageStats(messages.get(0));
+        assertNotNull(requestId);
+        List<Row> rows = reporter.getResults(requestId);
+        assertNotNull(rows);
     }
 
     @After

@@ -1,12 +1,12 @@
 package io.openexchange.pushwoosh;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Lists;
 import io.openexchange.domain.Application;
 import io.openexchange.domain.Device;
 import io.openexchange.domain.User;
 import io.openexchange.pojos.pushwoosh.*;
 import io.openexchange.services.Registry;
+import io.openexchange.services.Reporter;
 import io.openexchange.services.Sender;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -22,12 +22,14 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Configuration
@@ -52,6 +54,7 @@ public class ProviderConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(Registry.class)
     public Registry registry() {
         return new Registry() {
             @Override
@@ -95,6 +98,7 @@ public class ProviderConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(Sender.class)
     public Sender sender() {
         return new Sender() {
             @Override
@@ -104,14 +108,13 @@ public class ProviderConfiguration {
                                 new PushRequest()
                                         .withRequest(
                                                 new CreateMessage()
-                                                        .withApplication(application.getCode())
                                                         .withAuth(accessToken)
+                                                        .withApplication(application.getCode())
                                                         .withNotifications(
-                                                                Lists.newArrayList(
+                                                                Collections.singletonList(
                                                                         new Notification()
                                                                                 .withContent(text)
-                                                                                .withUsers(
-                                                                                        Stream.of(users).map(User::getId).toArray())))))
+                                                                                .withUsers(Stream.of(users).map(User::getId).collect(Collectors.toList()))))))
                                 .getResponse().getMessages());
             }
 
@@ -122,15 +125,42 @@ public class ProviderConfiguration {
                                 new PushRequest()
                                         .withRequest(
                                                 new CreateMessage()
-                                                        .withApplication(application.getCode())
                                                         .withAuth(accessToken)
+                                                        .withApplication(application.getCode())
                                                         .withNotifications(
-                                                                Lists.newArrayList(
+                                                                Collections.singletonList(
                                                                         new Notification()
                                                                                 .withContent(text)
-                                                                                .withDevices(
-                                                                                        Stream.of(devices).map(Device::getHwid).toArray())))))
+                                                                                .withDevices(Stream.of(devices).map(Device::getHwid).collect(Collectors.toList()))))))
                                 .getResponse().getMessages());
+            }
+        };
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(Reporter.class)
+    public Reporter reporter() {
+        return new Reporter() {
+            @Override
+            public String getMessageStats(String messageId) throws IOException, PushWooshResponseException {
+                return execute("getMsgStats",
+                        new PushRequest()
+                                .withRequest(
+                                        new GetMsgStats()
+                                                .withAuth(accessToken)
+                                                .withMessage(messageId))).getResponse().getRequestId();
+            }
+
+            @Override
+            public List<Row> getResults(String requestId) throws IOException, PushWooshResponseException {
+                return Collections.unmodifiableList(
+                        execute("getResults",
+                                new PushRequest()
+                                        .withRequest(
+                                                new GetResults()
+                                                        .withAuth(accessToken)
+                                                        .withRequestId(requestId)))
+                                .getResponse().getRows());
             }
         };
     }
@@ -169,5 +199,4 @@ public class ProviderConfiguration {
         }
         return pushResponse;
     }
-
 }

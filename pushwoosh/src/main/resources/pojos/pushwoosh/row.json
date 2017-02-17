@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "PushWoosh statistic row",
+  "type": "object",
+  "id": "messages",
+  "additionalProperties": false,
+  "generate-builders": true,
+  "properties": {
+    "datetime": {
+      "type": "string",
+      "format": "date-time",
+      "formatDateTimes": true,
+      "customDateTimePattern": "yyyy-MM-dd HH:mm:ss",
+      "required": true
+    },
+    "action": {
+      "type": "string",
+      "required": true
+    },
+    "count": {
+      "type": "integer",
+      "required": true
+    }
+  }
+}
