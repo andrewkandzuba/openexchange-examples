@@ -2,7 +2,6 @@ package io.openexchange.controlllers;
 
 import io.openexchange.pojos.api.RegisterDevicePayload;
 import io.openexchange.pojos.api.RegistryUserPayload;
-import io.openexchange.pojos.api.ResponsePayload;
 import io.openexchange.pushwoosh.PushWooshResponseException;
 import io.openexchange.services.Registry;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +16,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.io.IOException;
+
+import static io.openexchange.controlllers.ValidationErrorBuilder.buildError;
 
 @RestController
 public class RegistryController {
@@ -66,10 +67,5 @@ public class RegistryController {
             return buildError(ex);
         }
         return ResponseEntity.ok().build();
-    }
-
-    private static ResponseEntity buildError(PushWooshResponseException ex){
-        ResponsePayload rp = new ResponsePayload().withCode(ex.getCode()).withDescription(ex.getMessage());
-        return ResponseEntity.ok(rp);
     }
 }
