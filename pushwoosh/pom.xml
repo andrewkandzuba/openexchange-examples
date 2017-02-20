@@ -6,8 +6,8 @@
 
     <parent>
         <groupId>io.openexchange</groupId>
-        <artifactId>openexchange-examples</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <artifactId>openexchange-boot-starter-parent</artifactId>
+        <version>1.0.4</version>
     </parent>
 
     <artifactId>pushwoosh</artifactId>
@@ -51,6 +51,14 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <scm>
+        <developerConnection>
+            scm:git:[fetch=]https://github.com/andrewkandzuba/${project.artifactId}.git[push=]git@github.com:andrewkandzuba/${project.artifactId}.git
+        </developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
     <build>
         <resources>
             <resource>
