@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "Push service general request",
+  "type": "object",
+  "id": "request",
+  "additionalProperties": false,
+  "generate-builders": true
+}

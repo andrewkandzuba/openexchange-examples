@@ -1,13 +1,18 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema",
-  "description": "Push service general response payload",
+  "description": "Push service general response",
   "type": "object",
   "id": "generalResponse",
   "additionalProperties": false,
   "generate-builders": true,
   "properties": {
+    "classType": {
+      "type": "string",
+      "default": "io.openexchange.pojos.api.Response",
+      "required": true
+    },
     "code": {
-      "type" : "integer",
+      "type": "integer",
       "required": true
     },
     "description": {

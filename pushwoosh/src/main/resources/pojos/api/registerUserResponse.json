@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "Push service user registration response",
+  "type": "object",
+  "extends" : {
+    "javaType" : "io.openexchange.pojos.api.Response"
+  },
+  "id": "registerUserResponse",
+  "additionalProperties": false,
+  "generate-builders": true,
+  "properties": {
+    "classType": {
+      "type": "string",
+      "required": true,
+      "default": "io.openexchange.pojos.api.RegisterUserResponse"
+    }
+  }
+}

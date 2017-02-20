@@ -1,8 +1,11 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema",
-  "description": "Push service user registration payload",
+  "description": "Push service send message request",
   "type": "object",
-  "id": "registerUserPayload",
+  "extends" : {
+    "javaType" : "io.openexchange.pojos.api.Request"
+  },
+  "id": "createMessageRequest",
   "additionalProperties": false,
   "generate-builders": true,
   "properties": {
@@ -14,8 +17,8 @@
       "javaType": "io.openexchange.pojos.domain.Device",
       "required": true
     },
-    "user": {
-      "javaType": "io.openexchange.pojos.domain.User",
+    "content": {
+      "type": "string",
       "required": true
     }
   }

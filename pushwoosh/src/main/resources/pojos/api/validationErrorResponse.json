@@ -2,19 +2,23 @@
   "$schema": "http://json-schema.org/draft-04/schema",
   "description": "Validation error details",
   "type": "object",
-  "id": "ValidationError",
+  "extends" : {
+    "javaType" : "io.openexchange.pojos.api.Response"
+  },
+  "id": "ValidationErrorResponse",
   "additionalProperties": false,
   "generate-builders": true,
   "properties": {
+    "classType": {
+      "type": "string",
+      "required": true,
+      "default": "io.openexchange.pojos.api.ValidationErrorResponse"
+    },
     "errors": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "required": true
-    },
-    "errorMessage": {
-      "type": "string",
       "required": true
     }
   }

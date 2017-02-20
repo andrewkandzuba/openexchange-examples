@@ -1,11 +1,9 @@
 package io.openexchange.controlllers;
 
-import io.openexchange.pojos.api.RegisterDevicePayload;
-import io.openexchange.pojos.api.RegistryUserPayload;
+import io.openexchange.pojos.api.*;
 import io.openexchange.pushwoosh.PushWooshResponseException;
 import io.openexchange.services.Registry;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -17,55 +15,74 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.io.IOException;
 
-import static io.openexchange.controlllers.ValidationErrorBuilder.buildError;
+import static io.openexchange.controlllers.ErrorBuilder.buildError;
+import static io.openexchange.controlllers.ErrorBuilder.buildPushWooshError;
 
 @RestController
 public class RegistryController {
     @Autowired
     private Registry registry;
 
-    @RequestMapping(path = "/registry/add", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity add(@Valid @RequestBody RegisterDevicePayload payload, Errors errors) throws IOException {
+    @RequestMapping(
+            path = "/registry/add",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Response> add(@Valid @RequestBody RegisterDeviceRequest request, Errors errors) throws IOException {
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(ValidationErrorBuilder.fromBindingErrors(errors));
+            return ResponseEntity.badRequest().body(ErrorBuilder.buildValidationErrors(errors));
         }
         try {
-            if (!registry.add(payload.getApplication(), payload.getDevice())) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            if (!registry.add(request.getApplication(), request.getDevice())) {
+                throw new PushWooshResponseException(201, "Unable to register a device to PushWoosh application.");
             }
         } catch (PushWooshResponseException ex) {
-            return buildError(ex);
+            return buildPushWooshError(ex);
+        } catch (Throwable t) {
+            return buildError(t);
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(new RegisterDeviceResponse().withCode(200).withDescription("OK"));
     }
 
-    @RequestMapping(path = "/registry/remove", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity remove(@Valid @RequestBody RegisterDevicePayload payload, Errors errors) throws IOException {
+    @RequestMapping(
+            path = "/registry/remove",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Response> remove(@Valid @RequestBody RegisterDeviceRequest request, Errors errors) throws IOException {
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(ValidationErrorBuilder.fromBindingErrors(errors));
+            return ResponseEntity.badRequest().body(ErrorBuilder.buildValidationErrors(errors));
         }
         try {
-            if (!registry.remove(payload.getApplication(), payload.getDevice())) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            if (!registry.remove(request.getApplication(), request.getDevice())) {
+                throw new PushWooshResponseException(201, "Unable to unregister a device from PushWoosh application.");
             }
         } catch (PushWooshResponseException ex) {
-            return buildError(ex);
+            return buildPushWooshError(ex);
+        } catch (Throwable t) {
+            return buildError(t);
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(new RegisterDeviceResponse().withCode(200).withDescription("OK"));
     }
 
-    @RequestMapping(path = "/registry/assign", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity assign(@Valid @RequestBody RegistryUserPayload payload, Errors errors) throws IOException {
+    @RequestMapping(
+            path = "/registry/assign",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Response> assign(@Valid @RequestBody RegisterUserRequest request, Errors errors) throws IOException {
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(ValidationErrorBuilder.fromBindingErrors(errors));
+            return ResponseEntity.badRequest().body(ErrorBuilder.buildValidationErrors(errors));
         }
         try {
-            if (!registry.assign(payload.getUser(), payload.getApplication(), payload.getDevice())) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            if (!registry.assign(request.getUser(), request.getApplication(), request.getDevice())) {
+                throw new PushWooshResponseException(201, "Unable to assign a user to PushWoosh application.");
             }
         } catch (PushWooshResponseException ex) {
-            return buildError(ex);
+            return buildPushWooshError(ex);
+        } catch (Throwable t) {
+            return buildError(t);
         }
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(new RegisterUserResponse().withCode(200).withDescription("OK"));
     }
 }

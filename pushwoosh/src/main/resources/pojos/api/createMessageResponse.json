@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "description": "Push service device registration and unregistration payload",
+  "type": "object",
+  "extends" : {
+    "javaType" : "io.openexchange.pojos.api.Response"
+  },
+  "id": "registerDevicePayload",
+  "additionalProperties": false,
+  "generate-builders": true
+}

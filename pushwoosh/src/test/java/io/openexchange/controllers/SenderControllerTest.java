@@ -2,7 +2,7 @@ package io.openexchange.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.openexchange.controlllers.SenderController;
-import io.openexchange.pojos.api.CreateMessagePayload;
+import io.openexchange.pojos.api.CreateMessageRequest;
 import io.openexchange.pojos.domain.Application;
 import io.openexchange.pojos.domain.Device;
 import io.openexchange.pojos.domain.User;
@@ -55,7 +55,7 @@ public class SenderControllerTest {
         mockMvc.perform(post("/sender/push")
                 .content(
                         mapper.writeValueAsString(
-                                new CreateMessagePayload()
+                                new CreateMessageRequest()
                                         .withApplication(application)
                                         .withDevice(device)
                                         .withContent("hello")))
