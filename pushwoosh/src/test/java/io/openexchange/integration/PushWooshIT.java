@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -35,15 +36,29 @@ public class PushWooshIT {
     @Autowired
     private Reporter reporter;
 
-    private final User user = new User().withId("push.user@pushwoosh.com");
-    private final Application app = new Application().withCode("93689-F08F3");
-    private final Device device = new Device()
-            .withHwid("5E9C794E-BF59-4DC9-A501-4CB56150CA43")
-            .withToken("e8f22461ff9518e70def5b7203f6f91a0125837ff59edb90c95905e678a0501e")
-            .withType(Device.Type._1);
+    private User user;
+    private Application app;
+    private Device device;
+
+    @Value("${openexchange.pushwoosh.test.userid}")
+    private String userId;
+    @Value("${openexchange.pushwoosh.test.applicationcode}")
+    private String applicationCode;
+    @Value("${openexchange.pushwoosh.test.devicehwid}")
+    private String deviceHwId;
+    @Value("${openexchange.pushwoosh.test.devicepushtoken}")
+    private String devicePushToken;
+    @Value("${openexchange.pushwoosh.test.devicetype:1}")
+    private String deviceType;
 
     @Before
     public void setUp() throws Exception {
+        this.user = new User().withId(userId);
+        this.app = new Application().withCode(applicationCode);
+        this.device = new Device()
+                .withHwid(deviceHwId)
+                .withToken(devicePushToken)
+                .withType(Device.Type.fromValue(Integer.valueOf(deviceType)));
         assertTrue(registry.add(app, device));
     }
 
