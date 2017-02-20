@@ -1,11 +1,14 @@
 package io.openexchange.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.openexchange.api.Utils;
 import io.openexchange.controlllers.SenderController;
 import io.openexchange.pojos.api.CreateMessageRequest;
+import io.openexchange.pojos.api.ValidationErrorResponse;
 import io.openexchange.pojos.domain.Application;
 import io.openexchange.pojos.domain.Device;
 import io.openexchange.pojos.domain.User;
+import io.openexchange.services.PushReply;
 import io.openexchange.services.Sender;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,8 +21,8 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Collections;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -49,8 +52,24 @@ public class SenderControllerTest {
     }
 
     @Test
+    public void validationFailed() throws Exception {
+        mockMvc.perform(post("/sender/push")
+                .content(
+                        mapper.writeValueAsString(
+                                new CreateMessageRequest()))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(mvcResult -> {
+                    ValidationErrorResponse r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), ValidationErrorResponse.class);
+                    assertEquals(201, r.getCode().intValue());
+                    assertTrue(r.getDescription().startsWith("Validation failed. "));
+                    assertTrue(r.getErrors().size() > 0);
+                });
+    }
+
+    @Test
     public void registryValidationSuccess() throws Exception {
-        when(sender.push(any(Application.class), any(String.class), any(Device.class))).thenReturn(Collections.emptyList());
+        when(sender.push(any(Application.class), any(String.class), any(Device.class))).thenReturn(new PushReply(200, "OK", "XXXX-YYYY"));
 
         mockMvc.perform(post("/sender/push")
                 .content(
@@ -60,6 +79,9 @@ public class SenderControllerTest {
                                         .withDevice(device)
                                         .withContent("hello")))
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(mvcResult -> {
+
+                });
     }
 }

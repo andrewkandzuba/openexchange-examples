@@ -6,10 +6,9 @@ import io.openexchange.pojos.domain.User;
 import io.openexchange.pushwoosh.PushWooshResponseException;
 
 import java.io.IOException;
-import java.util.List;
 
 public interface Sender {
-    List<String> push(Application application, String text, User... users) throws IOException, PushWooshResponseException;
+    PushReply push(Application application, String text, User user) throws IOException, PushWooshResponseException;
 
-    List<String> push(Application application, String text, Device... devices) throws IOException, PushWooshResponseException;
+    PushReply push(Application application, String text, Device device) throws IOException, PushWooshResponseException;
 }

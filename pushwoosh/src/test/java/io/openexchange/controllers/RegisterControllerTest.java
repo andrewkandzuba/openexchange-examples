@@ -7,7 +7,9 @@ import io.openexchange.pojos.api.*;
 import io.openexchange.pojos.domain.Application;
 import io.openexchange.pojos.domain.Device;
 import io.openexchange.pojos.domain.User;
+import io.openexchange.pushwoosh.PushWooshResponseException;
 import io.openexchange.services.Registry;
+import io.openexchange.services.Reply;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +60,11 @@ public class RegisterControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(mvcResult -> {
-                    ValidationErrorResponse r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), ValidationErrorResponse.class);
+                    ValidationErrorResponse r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            ValidationErrorResponse.class);
                     assertEquals(201, r.getCode().intValue());
                     assertTrue(r.getDescription().startsWith("Validation failed. "));
                     assertTrue(r.getErrors().size() > 0);
@@ -69,7 +75,11 @@ public class RegisterControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(mvcResult -> {
-                    ValidationErrorResponse r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), ValidationErrorResponse.class);
+                    ValidationErrorResponse r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            ValidationErrorResponse.class);
                     assertEquals(201, r.getCode().intValue());
                     assertTrue(r.getDescription().startsWith("Validation failed. "));
                     assertTrue(r.getErrors().size() > 0);
@@ -80,7 +90,11 @@ public class RegisterControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(mvcResult -> {
-                    ValidationErrorResponse r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), ValidationErrorResponse.class);
+                    ValidationErrorResponse r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            ValidationErrorResponse.class);
                     assertEquals(201, r.getCode().intValue());
                     assertTrue(r.getDescription().startsWith("Validation failed. "));
                     assertTrue(r.getErrors().size() > 0);
@@ -89,9 +103,14 @@ public class RegisterControllerTest {
 
     @Test
     public void internalError() throws Exception {
-        when(registry.add(any(Application.class), any(Device.class))).thenThrow(new IOException("Connection timeout"));
-        when(registry.remove(any(Application.class), any(Device.class))).thenThrow(new IOException("Connection timeout"));
-        when(registry.assign(any(User.class), any(Application.class), any(Device.class))).thenThrow(new IOException("Connection timeout"));
+        final String internalErrorMessage = "Connection timeout";
+
+        when(registry.add(any(Application.class), any(Device.class)))
+                .thenThrow(new IOException(internalErrorMessage));
+        when(registry.remove(any(Application.class), any(Device.class)))
+                .thenThrow(new IOException(internalErrorMessage));
+        when(registry.assign(any(User.class), any(Application.class), any(Device.class)))
+                .thenThrow(new IOException(internalErrorMessage));
 
         mockMvc.perform(post("/registry/add")
                 .content(
@@ -104,7 +123,7 @@ public class RegisterControllerTest {
                 .andExpect(mvcResult -> {
                     Response r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), Response.class);
                     assertEquals(201, r.getCode().intValue());
-                    assertEquals("Connection timeout", r.getDescription());
+                    assertEquals(internalErrorMessage, r.getDescription());
                 });
 
         mockMvc.perform(post("/registry/remove")
@@ -118,7 +137,7 @@ public class RegisterControllerTest {
                 .andExpect(mvcResult -> {
                     Response r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), Response.class);
                     assertEquals(201, r.getCode().intValue());
-                    assertEquals("Connection timeout", r.getDescription());
+                    assertEquals(internalErrorMessage, r.getDescription());
                 });
 
         mockMvc.perform(post("/registry/assign")
@@ -133,15 +152,22 @@ public class RegisterControllerTest {
                 .andExpect(mvcResult -> {
                     Response r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), Response.class);
                     assertEquals(201, r.getCode().intValue());
-                    assertEquals("Connection timeout", r.getDescription());
+                    assertEquals(internalErrorMessage, r.getDescription());
                 });
     }
 
     @Test
     public void pushWooshLogicFailed() throws Exception {
-        when(registry.add(any(Application.class), any(Device.class))).thenReturn(false);
-        when(registry.remove(any(Application.class), any(Device.class))).thenReturn(false);
-        when(registry.assign(any(User.class), any(Application.class), any(Device.class))).thenReturn(false);
+        final String errorMessageAdd = "Unable to register device.";
+        final String errorMessageRemove = "Unable to remove device.";
+        final String errorMessageAssign = "Unable to assign user.";
+
+        when(registry.add(any(Application.class), any(Device.class)))
+                .thenThrow(new PushWooshResponseException(201, errorMessageAdd));
+        when(registry.remove(any(Application.class), any(Device.class)))
+                .thenThrow(new PushWooshResponseException(201, errorMessageRemove));
+        when(registry.assign(any(User.class), any(Application.class), any(Device.class)))
+                .thenThrow(new PushWooshResponseException(201, errorMessageAssign));
 
         mockMvc.perform(post("/registry/add")
                 .content(
@@ -154,7 +180,7 @@ public class RegisterControllerTest {
                 .andExpect(mvcResult -> {
                     Response r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), Response.class);
                     assertEquals(201, r.getCode().intValue());
-                    assertEquals("Unable to register a device to PushWoosh application.", r.getDescription());
+                    assertEquals(errorMessageAdd, r.getDescription());
                 });
 
         mockMvc.perform(post("/registry/remove")
@@ -168,7 +194,7 @@ public class RegisterControllerTest {
                 .andExpect(mvcResult -> {
                     Response r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), Response.class);
                     assertEquals(201, r.getCode().intValue());
-                    assertEquals("Unable to unregister a device from PushWoosh application.", r.getDescription());
+                    assertEquals(errorMessageRemove, r.getDescription());
                 });
 
         mockMvc.perform(post("/registry/assign")
@@ -183,15 +209,20 @@ public class RegisterControllerTest {
                 .andExpect(mvcResult -> {
                     Response r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), Response.class);
                     assertEquals(201, r.getCode().intValue());
-                    assertEquals("Unable to assign a user to PushWoosh application.", r.getDescription());
+                    assertEquals(errorMessageAssign, r.getDescription());
                 });
     }
 
     @Test
     public void success() throws Exception {
-        when(registry.add(any(Application.class), any(Device.class))).thenReturn(true);
-        when(registry.remove(any(Application.class), any(Device.class))).thenReturn(true);
-        when(registry.assign(any(User.class), any(Application.class), any(Device.class))).thenReturn(true);
+        final String successMessage = "OK";
+
+        when(registry.add(any(Application.class), any(Device.class)))
+                .thenReturn(new Reply(200, successMessage));
+        when(registry.remove(any(Application.class), any(Device.class)))
+                .thenReturn(new Reply(200, successMessage));
+        when(registry.assign(any(User.class), any(Application.class), any(Device.class)))
+                .thenReturn(new Reply(200, successMessage));
 
         mockMvc.perform(post("/registry/add")
                 .content(
@@ -202,9 +233,13 @@ public class RegisterControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(mvcResult -> {
-                    RegisterDeviceResponse r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), RegisterDeviceResponse.class);
+                    RegisterDeviceResponse r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            RegisterDeviceResponse.class);
                     assertEquals(200, r.getCode().intValue());
-                    assertEquals("OK", r.getDescription());
+                    assertEquals(successMessage, r.getDescription());
                 });
 
         mockMvc.perform(post("/registry/remove")
@@ -216,9 +251,13 @@ public class RegisterControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(mvcResult -> {
-                    RegisterDeviceResponse r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), RegisterDeviceResponse.class);
+                    RegisterDeviceResponse r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            RegisterDeviceResponse.class);
                     assertEquals(200, r.getCode().intValue());
-                    assertEquals("OK", r.getDescription());
+                    assertEquals(successMessage, r.getDescription());
                 });
 
         mockMvc.perform(post("/registry/assign")
@@ -231,9 +270,13 @@ public class RegisterControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(mvcResult -> {
-                    RegisterUserResponse r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), RegisterUserResponse.class);
+                    RegisterUserResponse r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            RegisterUserResponse.class);
                     assertEquals(200, r.getCode().intValue());
-                    assertEquals("OK", r.getDescription());
+                    assertEquals(successMessage, r.getDescription());
                 });
     }
 }

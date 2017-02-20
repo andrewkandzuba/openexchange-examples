@@ -8,9 +8,9 @@ import io.openexchange.pushwoosh.PushWooshResponseException;
 import java.io.IOException;
 
 public interface Registry {
-    boolean assign(User user, Application application, Device device) throws IOException, PushWooshResponseException;
+    Reply assign(User user, Application application, Device device) throws IOException, PushWooshResponseException;
 
-    boolean add(Application application, Device device) throws IOException, PushWooshResponseException;
+    Reply add(Application application, Device device) throws IOException, PushWooshResponseException;
 
-    boolean remove(Application application, Device device) throws IOException, PushWooshResponseException;
+    Reply remove(Application application, Device device) throws IOException, PushWooshResponseException;
 }

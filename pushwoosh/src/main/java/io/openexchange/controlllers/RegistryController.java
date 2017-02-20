@@ -33,9 +33,7 @@ public class RegistryController {
             return ResponseEntity.badRequest().body(ErrorBuilder.buildValidationErrors(errors));
         }
         try {
-            if (!registry.add(request.getApplication(), request.getDevice())) {
-                throw new PushWooshResponseException(201, "Unable to register a device to PushWoosh application.");
-            }
+            registry.add(request.getApplication(), request.getDevice());
         } catch (PushWooshResponseException ex) {
             return buildPushWooshError(ex);
         } catch (Throwable t) {
@@ -54,9 +52,7 @@ public class RegistryController {
             return ResponseEntity.badRequest().body(ErrorBuilder.buildValidationErrors(errors));
         }
         try {
-            if (!registry.remove(request.getApplication(), request.getDevice())) {
-                throw new PushWooshResponseException(201, "Unable to unregister a device from PushWoosh application.");
-            }
+            registry.remove(request.getApplication(), request.getDevice());
         } catch (PushWooshResponseException ex) {
             return buildPushWooshError(ex);
         } catch (Throwable t) {
@@ -75,9 +71,7 @@ public class RegistryController {
             return ResponseEntity.badRequest().body(ErrorBuilder.buildValidationErrors(errors));
         }
         try {
-            if (!registry.assign(request.getUser(), request.getApplication(), request.getDevice())) {
-                throw new PushWooshResponseException(201, "Unable to assign a user to PushWoosh application.");
-            }
+            registry.assign(request.getUser(), request.getApplication(), request.getDevice());
         } catch (PushWooshResponseException ex) {
             return buildPushWooshError(ex);
         } catch (Throwable t) {

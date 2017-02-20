@@ -9,7 +9,7 @@ import java.util.TimeZone;
 
 import static org.junit.Assert.*;
 
-public class PushWooshApiTest {
+public class PushWooshApiDataTest {
 
     @Test
     public void testPushResponseWithRequestId() throws Exception {

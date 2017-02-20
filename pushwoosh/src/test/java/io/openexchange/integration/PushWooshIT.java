@@ -3,12 +3,9 @@ package io.openexchange.integration;
 import io.openexchange.pojos.domain.Application;
 import io.openexchange.pojos.domain.Device;
 import io.openexchange.pojos.domain.User;
-import io.openexchange.pojos.pushwoosh.Row;
 import io.openexchange.pushwoosh.ProviderConfiguration;
 import io.openexchange.pushwoosh.PushWooshResponseException;
-import io.openexchange.services.Registry;
-import io.openexchange.services.Reporter;
-import io.openexchange.services.Sender;
+import io.openexchange.services.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,10 +16,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
-import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
@@ -59,7 +54,9 @@ public class PushWooshIT {
                 .withHwid(deviceHwId)
                 .withToken(devicePushToken)
                 .withType(Device.Type.fromValue(Integer.valueOf(deviceType)));
-        assertTrue(registry.add(app, device));
+
+        Reply reply = registry.add(app, device);
+        assertEquals(200, reply.getCode());
     }
 
     /**
@@ -71,8 +68,12 @@ public class PushWooshIT {
      */
     @Test(expected = PushWooshResponseException.class)
     public void registerUserAndSendNotification() throws IOException, PushWooshResponseException {
-        assertTrue(registry.assign(user, app, device));
-        assertNotNull(sender.push(app, "Push to user", user));
+        Reply reply = registry.assign(user, app, device);
+        assertEquals(200, reply.getCode());
+
+        PushReply pushReply = sender.push(app, "Push to user", user);
+        assertEquals(200, pushReply.getCode());
+        assertNotNull(pushReply.getMessageId());
     }
 
     @Test
@@ -82,16 +83,22 @@ public class PushWooshIT {
 
     @Test
     public void trackMessageStatistics() throws IOException, PushWooshResponseException, InterruptedException {
-        List<String> messages = sender.push(app, "Push to device with tracking", device);
-        assertTrue(messages.size() == 1);
-        String requestId = reporter.getMessageStats(messages.get(0));
-        assertNotNull(requestId);
-        List<Row> rows = reporter.getResults(requestId);
-        assertNotNull(rows);
+        PushReply pushReply = sender.push(app, "Push to device with tracking", device);
+        assertEquals(pushReply.getCode(), 200);
+        assertNotNull(pushReply.getMessageId());
+
+        RequestReply requestReply = reporter.getMessageStats(pushReply.getMessageId());
+        assertEquals(requestReply.getCode(), 200);
+        assertNotNull(requestReply.getRequestId());
+
+        RowsReply rowsReply = reporter.getResults(requestReply.getRequestId());
+        assertEquals(rowsReply.getCode(), 200);
+        assertEquals(0, rowsReply.getRows().size());
     }
 
     @After
     public void tearDown() throws IOException, PushWooshResponseException {
-        assertTrue(registry.remove(app, device));
+        Reply reply = registry.remove(app, device);
+        assertEquals(200, reply.getCode());
     }
 }

@@ -5,9 +5,7 @@ import io.openexchange.pojos.domain.Application;
 import io.openexchange.pojos.domain.Device;
 import io.openexchange.pojos.domain.User;
 import io.openexchange.pojos.pushwoosh.*;
-import io.openexchange.services.Registry;
-import io.openexchange.services.Reporter;
-import io.openexchange.services.Sender;
+import io.openexchange.services.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -28,9 +26,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Configuration
 public class ProviderConfiguration {
@@ -58,41 +53,47 @@ public class ProviderConfiguration {
     public Registry registry() {
         return new Registry() {
             @Override
-            public boolean assign(User user, Application application, Device device) throws IOException, PushWooshResponseException {
-                return execute("registerUser",
-                        new PushRequest()
-                                .withRequest(
-                                        new RegisterUser()
-                                                .withAuth(accessToken)
-                                                .withApplication(application.getCode())
-                                                .withHwid(device.getHwid())
-                                                .withUserId(user.getId()))).getStatusCode() == 200;
+            public Reply assign(User user, Application application, Device device) throws IOException, PushWooshResponseException {
+                PushResponse pr =
+                        execute("registerUser",
+                                new PushRequest()
+                                        .withRequest(
+                                                new RegisterUser()
+                                                        .withAuth(accessToken)
+                                                        .withApplication(application.getCode())
+                                                        .withHwid(device.getHwid())
+                                                        .withUserId(user.getId())));
+                return new Reply(pr.getStatusCode(), pr.getStatusMessage());
             }
 
             @Override
-            public boolean add(Application application, Device device) throws IOException, PushWooshResponseException {
-                return execute("registerDevice",
-                        new PushRequest()
-                                .withRequest(
-                                        new RegisterDevice()
-                                                .withAuth(accessToken)
-                                                .withApplication(application.getCode())
-                                                .withHwid(device.getHwid())
-                                                .withPushToken(device.getToken())
-                                                .withDeviceType(device.getType().value()))).getStatusCode() == 200;
+            public Reply add(Application application, Device device) throws IOException, PushWooshResponseException {
+                PushResponse pr =
+                        execute("registerDevice",
+                                new PushRequest()
+                                        .withRequest(
+                                                new RegisterDevice()
+                                                        .withAuth(accessToken)
+                                                        .withApplication(application.getCode())
+                                                        .withHwid(device.getHwid())
+                                                        .withPushToken(device.getToken())
+                                                        .withDeviceType(device.getType().value())));
+                return new Reply(pr.getStatusCode(), pr.getStatusMessage());
             }
 
             @Override
-            public boolean remove(Application application, Device device) throws IOException, PushWooshResponseException {
-                return execute("unregisterDevice",
-                        new PushRequest()
-                                .withRequest(
-                                        new RegisterDevice()
-                                                .withAuth(accessToken)
-                                                .withApplication(application.getCode())
-                                                .withHwid(device.getHwid())
-                                                .withPushToken(device.getToken())
-                                                .withDeviceType(device.getType().value()))).getStatusCode() == 200;
+            public Reply remove(Application application, Device device) throws IOException, PushWooshResponseException {
+                PushResponse pr =
+                        execute("unregisterDevice",
+                                new PushRequest()
+                                        .withRequest(
+                                                new RegisterDevice()
+                                                        .withAuth(accessToken)
+                                                        .withApplication(application.getCode())
+                                                        .withHwid(device.getHwid())
+                                                        .withPushToken(device.getToken())
+                                                        .withDeviceType(device.getType().value())));
+                return new Reply(pr.getStatusCode(), pr.getStatusMessage());
             }
         };
     }
@@ -102,8 +103,8 @@ public class ProviderConfiguration {
     public Sender sender() {
         return new Sender() {
             @Override
-            public List<String> push(Application application, String text, User... users) throws IOException, PushWooshResponseException {
-                return Collections.unmodifiableList(
+            public PushReply push(Application application, String text, User user) throws IOException, PushWooshResponseException {
+                PushResponse pr =
                         execute("createMessage",
                                 new PushRequest()
                                         .withRequest(
@@ -114,13 +115,13 @@ public class ProviderConfiguration {
                                                                 Collections.singletonList(
                                                                         new Notification()
                                                                                 .withContent(text)
-                                                                                .withUsers(Stream.of(users).map(User::getId).collect(Collectors.toList()))))))
-                                .getResponse().getMessages());
+                                                                                .withUsers(Collections.unmodifiableList(Collections.singletonList(user.getId())))))));
+                return new PushReply(pr.getStatusCode(), pr.getStatusMessage(), pr.getResponse().getMessages().get(0));
             }
 
             @Override
-            public List<String> push(Application application, String text, Device... devices) throws IOException, PushWooshResponseException {
-                return Collections.unmodifiableList(
+            public PushReply push(Application application, String text, Device device) throws IOException, PushWooshResponseException {
+                PushResponse pr =
                         execute("createMessage",
                                 new PushRequest()
                                         .withRequest(
@@ -131,8 +132,8 @@ public class ProviderConfiguration {
                                                                 Collections.singletonList(
                                                                         new Notification()
                                                                                 .withContent(text)
-                                                                                .withDevices(Stream.of(devices).map(Device::getHwid).collect(Collectors.toList()))))))
-                                .getResponse().getMessages());
+                                                                                .withDevices(Collections.unmodifiableList(Collections.singletonList(device.getHwid())))))));
+                return new PushReply(pr.getStatusCode(), pr.getStatusMessage(), pr.getResponse().getMessages().get(0));
             }
         };
     }
@@ -142,25 +143,25 @@ public class ProviderConfiguration {
     public Reporter reporter() {
         return new Reporter() {
             @Override
-            public String getMessageStats(String messageId) throws IOException, PushWooshResponseException {
-                return execute("getMsgStats",
+            public RequestReply getMessageStats(String messageId) throws IOException, PushWooshResponseException {
+                PushResponse pr = execute("getMsgStats",
                         new PushRequest()
                                 .withRequest(
                                         new GetMsgStats()
                                                 .withAuth(accessToken)
-                                                .withMessage(messageId))).getResponse().getRequestId();
+                                                .withMessage(messageId)));
+                return new RequestReply(pr.getStatusCode(), pr.getStatusMessage(), pr.getResponse().getRequestId());
             }
 
             @Override
-            public List<Row> getResults(String requestId) throws IOException, PushWooshResponseException {
-                return Collections.unmodifiableList(
-                        execute("getResults",
-                                new PushRequest()
-                                        .withRequest(
-                                                new GetResults()
-                                                        .withAuth(accessToken)
-                                                        .withRequestId(requestId)))
-                                .getResponse().getRows());
+            public RowsReply getResults(String requestId) throws IOException, PushWooshResponseException {
+                PushResponse pr = execute("getResults",
+                        new PushRequest()
+                                .withRequest(
+                                        new GetResults()
+                                                .withAuth(accessToken)
+                                                .withRequestId(requestId)));
+                return new RowsReply(pr.getStatusCode(), pr.getStatusMessage(), pr.getResponse().getRows());
             }
         };
     }

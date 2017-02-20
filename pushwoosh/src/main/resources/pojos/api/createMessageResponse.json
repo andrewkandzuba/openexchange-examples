@@ -7,5 +7,16 @@
   },
   "id": "registerDevicePayload",
   "additionalProperties": false,
-  "generate-builders": true
+  "generate-builders": true,
+  "properties": {
+    "classType": {
+      "type": "string",
+      "required": true,
+      "default": "io.openexchange.pojos.api.CreateMessageResponse"
+    },
+    "messageId": {
+      "type": "string",
+      "required": true
+    }
+  }
 }
