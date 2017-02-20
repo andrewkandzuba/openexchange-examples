@@ -78,7 +78,9 @@ public class PushWooshIT {
 
     @Test
     public void sendToDevice() throws IOException, PushWooshResponseException {
-        assertNotNull(sender.push(app, "Push to device", device));
+        PushReply pushReply = sender.push(app, "Push to device", device);
+        assertEquals(pushReply.getCode(), 200);
+        assertNotNull(pushReply.getMessageId());
     }
 
     @Test
@@ -91,9 +93,11 @@ public class PushWooshIT {
         assertEquals(requestReply.getCode(), 200);
         assertNotNull(requestReply.getRequestId());
 
-        RowsReply rowsReply = reporter.getResults(requestReply.getRequestId());
-        assertEquals(rowsReply.getCode(), 200);
-        assertEquals(0, rowsReply.getRows().size());
+        try {
+            reporter.getResults(requestReply.getRequestId());
+        } catch (PushWooshResponseException ex) {
+            assertEquals(ex.getCode(), 420);
+        }
     }
 
     @After

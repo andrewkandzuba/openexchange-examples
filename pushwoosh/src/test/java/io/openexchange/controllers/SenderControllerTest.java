@@ -3,8 +3,7 @@ package io.openexchange.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.openexchange.api.Utils;
 import io.openexchange.controlllers.SenderController;
-import io.openexchange.pojos.api.CreateMessageRequest;
-import io.openexchange.pojos.api.ValidationErrorResponse;
+import io.openexchange.pojos.api.*;
 import io.openexchange.pojos.domain.Application;
 import io.openexchange.pojos.domain.Device;
 import io.openexchange.pojos.domain.User;
@@ -20,6 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -41,6 +42,7 @@ public class SenderControllerTest {
     private MockMvc mockMvc;
     private final ObjectMapper mapper = new ObjectMapper();
 
+    private final static String senderPath = "/sender/push/device";
     private final Application application = new Application().withCode("2222-3333");
     private final Device device = new Device().withHwid("xxxxxxx").withToken("yyyyyy").withType(Device.Type._1);
     private final User user = new User().withId("zzzzzz");
@@ -53,14 +55,18 @@ public class SenderControllerTest {
 
     @Test
     public void validationFailed() throws Exception {
-        mockMvc.perform(post("/sender/push")
+        mockMvc.perform(post(senderPath)
                 .content(
                         mapper.writeValueAsString(
                                 new CreateMessageRequest()))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(mvcResult -> {
-                    ValidationErrorResponse r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), ValidationErrorResponse.class);
+                    ValidationErrorResponse r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            ValidationErrorResponse.class);
                     assertEquals(201, r.getCode().intValue());
                     assertTrue(r.getDescription().startsWith("Validation failed. "));
                     assertTrue(r.getErrors().size() > 0);
@@ -68,10 +74,65 @@ public class SenderControllerTest {
     }
 
     @Test
-    public void registryValidationSuccess() throws Exception {
-        when(sender.push(any(Application.class), any(String.class), any(Device.class))).thenReturn(new PushReply(200, "OK", "XXXX-YYYY"));
+    public void internalError() throws Exception {
+        final String internalErrorMessage = "Connection timeout";
+        when(sender.push(any(Application.class), any(String.class), any(Device.class)))
+                .thenThrow(new IOException(internalErrorMessage));
 
-        mockMvc.perform(post("/sender/push")
+        mockMvc.perform(post(senderPath)
+                .content(
+                        mapper.writeValueAsString(
+                                new CreateMessageRequest()
+                                        .withApplication(application)
+                                        .withDevice(device)
+                                        .withContent("hello")))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(mvcResult -> {
+                    Response r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            Response.class);
+                    assertEquals(201, r.getCode().intValue());
+                    assertEquals(internalErrorMessage, r.getDescription());
+                });
+    }
+
+    @Test
+    public void pushWooshLogicFailed() throws Exception {
+        final String logicErrorMessage = "Unable to send push notification.";
+        when(sender.push(any(Application.class), any(String.class), any(Device.class)))
+                .thenThrow(new IOException(logicErrorMessage));
+
+        mockMvc.perform(post(senderPath)
+                .content(
+                        mapper.writeValueAsString(
+                                new CreateMessageRequest()
+                                        .withApplication(application)
+                                        .withDevice(device)
+                                        .withContent("hello")))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(mvcResult -> {
+                    Response r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            Response.class);
+                    assertEquals(201, r.getCode().intValue());
+                    assertEquals(logicErrorMessage, r.getDescription());
+                });
+    }
+
+    @Test
+    public void registryValidationSuccess() throws Exception {
+        final String successMessage = "OK";
+        final String messageId = "XXXX-YYYY";
+        when(sender.push(any(Application.class), any(String.class), any(Device.class)))
+                .thenReturn(new PushReply(200, successMessage, messageId));
+
+        mockMvc.perform(post(senderPath)
                 .content(
                         mapper.writeValueAsString(
                                 new CreateMessageRequest()
@@ -81,7 +142,14 @@ public class SenderControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(mvcResult -> {
-
+                    CreateMessageResponse r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            CreateMessageResponse.class);
+                    assertEquals(200, r.getCode().intValue());
+                    assertEquals(successMessage, r.getDescription());
+                    assertEquals(messageId, r.getMessageId());
                 });
     }
 }

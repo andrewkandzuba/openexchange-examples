@@ -10,19 +10,21 @@ import org.springframework.validation.ObjectError;
 
 class ErrorBuilder {
     static ValidationErrorResponse buildValidationErrors(Errors errors) {
-        ValidationErrorResponse validationError = new ValidationErrorResponse().withCode(201).withDescription("Validation failed. " + errors.getErrorCount() + " error(s)");
+        ValidationErrorResponse validationError = new ValidationErrorResponse()
+                .withCode(201)
+                .withDescription("Validation failed. " + errors.getErrorCount() + " error(s)");
         for (ObjectError objectError : errors.getAllErrors()) {
             validationError.getErrors().add(objectError.getDefaultMessage());
         }
         return validationError;
     }
 
-    static ResponseEntity<Response> buildPushWooshError(PushWooshResponseException ex){
+    static ResponseEntity<Response> buildPushWooshError(PushWooshResponseException ex) {
         Response rp = new Response().withCode(ex.getCode()).withDescription(ex.getMessage());
         return ResponseEntity.ok(rp);
     }
 
-    static ResponseEntity<Response> buildError(Throwable t){
+    static ResponseEntity<Response> buildError(Throwable t) {
         Response rp = new Response().withCode(201).withDescription(t.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(rp);
     }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.io.IOException;
 
+import static io.openexchange.controlllers.ErrorBuilder.buildError;
 import static io.openexchange.controlllers.ErrorBuilder.buildPushWooshError;
 
 @RestController
@@ -26,7 +27,7 @@ public class SenderController {
     private Sender sender;
 
     @RequestMapping(
-            path = "/sender/push",
+            path = "/sender/push/device",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -36,9 +37,15 @@ public class SenderController {
         }
         try {
             PushReply pushReply = sender.push(request.getApplication(), request.getContent(), request.getDevice());
-            return ResponseEntity.ok().body(new CreateMessageResponse().withMessageId(pushReply.getMessageId()).withCode(200).withDescription("OK"));
+            return ResponseEntity.ok().body(
+                    new CreateMessageResponse()
+                            .withMessageId(pushReply.getMessageId())
+                            .withCode(200)
+                            .withDescription("OK"));
         } catch (PushWooshResponseException ex) {
             return buildPushWooshError(ex);
+        } catch (Throwable t) {
+            return buildError(t);
         }
     }
 }

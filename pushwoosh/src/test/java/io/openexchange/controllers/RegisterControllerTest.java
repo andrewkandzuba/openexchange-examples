@@ -43,6 +43,10 @@ public class RegisterControllerTest {
     private MockMvc mockMvc;
     private final ObjectMapper mapper = new ObjectMapper();
 
+    private final static String registryAddPath = "/registry/add";
+    private final static String registryRemovePath = "/registry/remove";
+    private final static String registryAssignPath = "/registry/assign";
+
     private final Application application = new Application().withCode("2222-3333");
     private final Device device = new Device().withHwid("xxxxxxx").withToken("yyyyyy").withType(Device.Type._1);
     private final User user = new User().withId("zzzzzz");
@@ -55,7 +59,7 @@ public class RegisterControllerTest {
 
     @Test
     public void validationFailed() throws Exception {
-        mockMvc.perform(post("/registry/add")
+        mockMvc.perform(post(registryAddPath)
                 .content(mapper.writeValueAsString(new RegisterDeviceRequest()))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -70,7 +74,7 @@ public class RegisterControllerTest {
                     assertTrue(r.getErrors().size() > 0);
                 });
 
-        mockMvc.perform(post("/registry/remove")
+        mockMvc.perform(post(registryRemovePath)
                 .content(mapper.writeValueAsString(new RegisterDeviceRequest()))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -85,7 +89,7 @@ public class RegisterControllerTest {
                     assertTrue(r.getErrors().size() > 0);
                 });
 
-        mockMvc.perform(post("/registry/assign")
+        mockMvc.perform(post(registryAssignPath)
                 .content(mapper.writeValueAsString(new RegisterUserRequest()))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -112,7 +116,7 @@ public class RegisterControllerTest {
         when(registry.assign(any(User.class), any(Application.class), any(Device.class)))
                 .thenThrow(new IOException(internalErrorMessage));
 
-        mockMvc.perform(post("/registry/add")
+        mockMvc.perform(post(registryAddPath)
                 .content(
                         mapper.writeValueAsString(
                                 new RegisterDeviceRequest()
@@ -121,12 +125,16 @@ public class RegisterControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError())
                 .andExpect(mvcResult -> {
-                    Response r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), Response.class);
+                    Response r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            Response.class);
                     assertEquals(201, r.getCode().intValue());
                     assertEquals(internalErrorMessage, r.getDescription());
                 });
 
-        mockMvc.perform(post("/registry/remove")
+        mockMvc.perform(post(registryRemovePath)
                 .content(
                         mapper.writeValueAsString(
                                 new RegisterDeviceRequest()
@@ -135,12 +143,16 @@ public class RegisterControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError())
                 .andExpect(mvcResult -> {
-                    Response r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), Response.class);
+                    Response r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            Response.class);
                     assertEquals(201, r.getCode().intValue());
                     assertEquals(internalErrorMessage, r.getDescription());
                 });
 
-        mockMvc.perform(post("/registry/assign")
+        mockMvc.perform(post(registryAssignPath)
                 .content(
                         mapper.writeValueAsString(
                                 new RegisterUserRequest()
@@ -150,7 +162,11 @@ public class RegisterControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isInternalServerError())
                 .andExpect(mvcResult -> {
-                    Response r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), Response.class);
+                    Response r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            Response.class);
                     assertEquals(201, r.getCode().intValue());
                     assertEquals(internalErrorMessage, r.getDescription());
                 });
@@ -169,7 +185,7 @@ public class RegisterControllerTest {
         when(registry.assign(any(User.class), any(Application.class), any(Device.class)))
                 .thenThrow(new PushWooshResponseException(201, errorMessageAssign));
 
-        mockMvc.perform(post("/registry/add")
+        mockMvc.perform(post(registryAddPath)
                 .content(
                         mapper.writeValueAsString(
                                 new RegisterDeviceRequest()
@@ -178,12 +194,16 @@ public class RegisterControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(mvcResult -> {
-                    Response r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), Response.class);
+                    Response r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            Response.class);
                     assertEquals(201, r.getCode().intValue());
                     assertEquals(errorMessageAdd, r.getDescription());
                 });
 
-        mockMvc.perform(post("/registry/remove")
+        mockMvc.perform(post(registryRemovePath)
                 .content(
                         mapper.writeValueAsString(
                                 new RegisterDeviceRequest()
@@ -192,12 +212,16 @@ public class RegisterControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(mvcResult -> {
-                    Response r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), Response.class);
+                    Response r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            Response.class);
                     assertEquals(201, r.getCode().intValue());
                     assertEquals(errorMessageRemove, r.getDescription());
                 });
 
-        mockMvc.perform(post("/registry/assign")
+        mockMvc.perform(post(registryAssignPath)
                 .content(
                         mapper.writeValueAsString(
                                 new RegisterUserRequest()
@@ -207,7 +231,11 @@ public class RegisterControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(mvcResult -> {
-                    Response r = Utils.deserializeFrom(mvcResult.getResponse().getContentAsString(), Response.class);
+                    Response r = Utils.deserializeFrom(
+                            mvcResult
+                                    .getResponse()
+                                    .getContentAsString(),
+                            Response.class);
                     assertEquals(201, r.getCode().intValue());
                     assertEquals(errorMessageAssign, r.getDescription());
                 });
@@ -224,7 +252,7 @@ public class RegisterControllerTest {
         when(registry.assign(any(User.class), any(Application.class), any(Device.class)))
                 .thenReturn(new Reply(200, successMessage));
 
-        mockMvc.perform(post("/registry/add")
+        mockMvc.perform(post(registryAddPath)
                 .content(
                         mapper.writeValueAsString(
                                 new RegisterDeviceRequest()
@@ -242,7 +270,7 @@ public class RegisterControllerTest {
                     assertEquals(successMessage, r.getDescription());
                 });
 
-        mockMvc.perform(post("/registry/remove")
+        mockMvc.perform(post(registryRemovePath)
                 .content(
                         mapper.writeValueAsString(
                                 new RegisterDeviceRequest()
@@ -260,7 +288,7 @@ public class RegisterControllerTest {
                     assertEquals(successMessage, r.getDescription());
                 });
 
-        mockMvc.perform(post("/registry/assign")
+        mockMvc.perform(post(registryAssignPath)
                 .content(
                         mapper.writeValueAsString(
                                 new RegisterUserRequest()
