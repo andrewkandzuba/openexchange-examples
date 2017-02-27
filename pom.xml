@@ -27,6 +27,7 @@
         <module>vadidation</module>
         <module>kafka-consumer</module>
         <module>kafka-sms-transport</module>
+        <module>cloud-stream-local-support</module>
     </modules>
 
 </project>
