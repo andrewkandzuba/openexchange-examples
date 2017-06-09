@@ -20,11 +20,13 @@ public class LocalQueueBinder implements Binder<MessageChannel, ConsumerProperti
 
     private static class LocalQueueBinding implements Binding<MessageChannel> {
 
-
-
         @Override
         public void unbind() {
 
         }
+    }
+
+    private static class DIBinder {
+        
     }
 }
